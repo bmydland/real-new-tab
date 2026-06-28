@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "realNewTab",
+  "short_name": "realNewTab",
+  "description": "A local Metro-style new tab page with custom tiles and import/export.",
+  "version": "0.1.0",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "permissions": ["storage", "unlimitedStorage"]
+}
