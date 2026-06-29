@@ -1,10 +1,10 @@
-import { coerceHexColor } from "../utils/color";
-import { isRecord } from "../utils/isRecord";
-import { normalizeUrl } from "../utils/url";
+import { coerceHexColor } from "~/utils/color";
+import { isRecord } from "~/utils/isRecord";
+import { normalizeUrl } from "~/utils/url";
 import { createTileId } from "./createTileId";
-import type { Tile, TileSize } from "./types";
+import type { TileType, TileSize } from "./types";
 
-export function legacyTileToTile(value: unknown): Tile | null {
+export function legacyTileToTile(value: unknown): TileType | null {
   if (!isRecord(value)) {
     return null;
   }

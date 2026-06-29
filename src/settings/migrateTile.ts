@@ -1,14 +1,14 @@
-import { coerceHexColor } from "../utils/color";
-import { coerceImageDataUrl } from "../utils/image";
-import { isRecord } from "../utils/isRecord";
-import { normalizeUrl } from "../utils/url";
+import { coerceHexColor } from "~/utils/color";
+import { coerceImageDataUrl } from "~/utils/image";
+import { isRecord } from "~/utils/isRecord";
+import { normalizeUrl } from "~/utils/url";
 import { createTileId } from "./createTileId";
 import { TILE_SIZES } from "./constants";
-import type { Tile, TileSize } from "./types";
+import type { TileType, TileSize } from "./types";
 
 const DEFAULT_TILE_COLOR = "#008a8a";
 
-export function migrateTile(value: unknown): Tile | null {
+export function migrateTile(value: unknown): TileType | null {
   if (!isRecord(value)) {
     return null;
   }
@@ -27,11 +27,19 @@ export function migrateTile(value: unknown): Tile | null {
     color: coerceHexColor(value.color, DEFAULT_TILE_COLOR),
     size: coerceTileSize(value.size),
     icon: coerceImageDataUrl(value.icon),
-    createdAt: typeof value.createdAt === "string" ? value.createdAt : new Date().toISOString(),
-    updatedAt: typeof value.updatedAt === "string" ? value.updatedAt : new Date().toISOString(),
+    createdAt:
+      typeof value.createdAt === "string"
+        ? value.createdAt
+        : new Date().toISOString(),
+    updatedAt:
+      typeof value.updatedAt === "string"
+        ? value.updatedAt
+        : new Date().toISOString(),
   };
 }
 
 export function coerceTileSize(value: unknown): TileSize {
-  return typeof value === "string" && TILE_SIZES.includes(value as TileSize) ? (value as TileSize) : "normal";
+  return typeof value === "string" && TILE_SIZES.includes(value as TileSize)
+    ? (value as TileSize)
+    : "normal";
 }

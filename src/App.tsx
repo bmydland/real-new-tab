@@ -1,28 +1,40 @@
+import { PlusCircleIcon, WrenchIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Toaster } from "react-hot-toast";
-import { NewTabShell, Toolbar, ToolbarButton } from "./App.styles";
-import { SettingsDialog } from "./components/SettingsDialog";
-import { PageSpinner } from "./components/Spinner";
-import { TileBoard } from "./components/TileBoard";
-import { TileDialog, type TileFormValue } from "./components/TileDialog";
-import { useStoredSettings } from "./hooks/useStoredSettings";
-import type { Tile } from "./settings";
-import { createTileId } from "./settings/createTileId";
-import { AppTheme } from "./theme/AppTheme";
+import {
+  PageSpinner,
+  SettingsDialog,
+  TileBoard,
+  TileModal,
+} from "~/components";
+import { useStoredSettings } from "~/hooks";
+import type { TileType } from "~/settings";
+import { createTileId } from "~/settings/createTileId";
+import type { TileFormValue } from "~/types";
+import { StyledMain, Toolbar, ToolbarButton } from "./styles";
+import "./font/roboto.css";
 
-type TileDialogState = { type: "add" } | { type: "edit"; tile: Tile } | null;
+type TileDialogState =
+  | { type: "add" }
+  | { type: "edit"; tile: TileType }
+  | null;
 
 export default function App() {
-  const { isLoading, persistSettings, settings, showToast } = useStoredSettings();
+  const { isLoading, persistSettings, settings, showToast } =
+    useStoredSettings();
+
   const [dialogState, setDialogState] = useState<TileDialogState>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   async function saveTile(form: TileFormValue) {
-    const existingTile = dialogState?.type === "edit" ? dialogState.tile : undefined;
+    const existingTile =
+      dialogState?.type === "edit" ? dialogState.tile : undefined;
+
     const now = new Date().toISOString();
-    const nextTile: Tile = {
+
+    const nextTile: TileType = {
       id: existingTile?.id ?? createTileId(),
       url: form.url,
       label: form.label,
@@ -32,11 +44,17 @@ export default function App() {
       createdAt: existingTile?.createdAt ?? now,
       updatedAt: now,
     };
+
     const tiles = existingTile
-      ? settings.tiles.map((tile) => (tile.id === existingTile.id ? nextTile : tile))
+      ? settings.tiles.map((tile) =>
+          tile.id === existingTile.id ? nextTile : tile,
+        )
       : [...settings.tiles, nextTile];
 
-    await persistSettings({ ...settings, tiles }, existingTile ? "Tile updated." : "Tile added.");
+    await persistSettings(
+      { ...settings, tiles },
+      existingTile ? "Tile updated" : "Tile added",
+    );
   }
 
   async function deleteTile(id: string) {
@@ -51,83 +69,80 @@ export default function App() {
         ...settings,
         tiles: settings.tiles.filter((item) => item.id !== id),
       },
-      "Tile deleted.",
+      "Tile deleted",
     );
   }
 
-  async function reorderTiles(tiles: Tile[]) {
+  async function reorderTiles(tiles: TileType[]) {
     try {
       await persistSettings({ ...settings, tiles });
     } catch (error) {
-      showToast(error instanceof Error ? error.message : "Could not save tile order.", "error");
+      showToast(
+        error instanceof Error ? error.message : "Could not save tile order",
+        "error",
+      );
       throw error;
     }
   }
 
   return (
-    <AppTheme>
-      {isLoading ? (
-        <PageSpinner />
-      ) : (
-        <NewTabShell $backgroundColor={settings.backgroundColor} $backgroundImage={settings.backgroundImage}>
-          <Toolbar aria-label="New tab actions">
-            <ToolbarButton type="button" onClick={() => setDialogState({ type: "add" })} title="Add tile">
-              +
-            </ToolbarButton>
-            <ToolbarButton type="button" $isText onClick={() => setSettingsOpen(true)} title="Settings">
-              Settings
-            </ToolbarButton>
-          </Toolbar>
+    <>
+      {isLoading && <PageSpinner />}
 
-          <DndProvider backend={HTML5Backend}>
-            <TileBoard
-              tiles={settings.tiles}
-              onAdd={() => setDialogState({ type: "add" })}
-              onDelete={(id) => void deleteTile(id)}
-              onEdit={(tile) => setDialogState({ type: "edit", tile })}
-              onReorder={reorderTiles}
+      {!isLoading && (
+        <>
+          <StyledMain
+            $backgroundColor={settings.backgroundColor}
+            $backgroundImage={settings.backgroundImage}
+          >
+            <Toolbar aria-label="New tab actions">
+              <ToolbarButton
+                type="button"
+                onClick={() => setDialogState({ type: "add" })}
+              >
+                <PlusCircleIcon aria-hidden />
+                Add tile
+              </ToolbarButton>
+
+              <ToolbarButton
+                type="button"
+                onClick={() => setSettingsOpen(true)}
+              >
+                <WrenchIcon />
+                Settings
+              </ToolbarButton>
+            </Toolbar>
+
+            <DndProvider backend={HTML5Backend}>
+              <TileBoard
+                tiles={settings.tiles}
+                rowCount={settings.gridRows}
+                onAdd={() => setDialogState({ type: "add" })}
+                onDelete={(id) => deleteTile(id)}
+                onEdit={(tile) => setDialogState({ type: "edit", tile })}
+                onReorder={reorderTiles}
+              />
+            </DndProvider>
+
+            <TileModal
+              open={dialogState !== null}
+              tile={dialogState?.type === "edit" ? dialogState.tile : undefined}
+              onClose={() => setDialogState(null)}
+              onSave={saveTile}
             />
-          </DndProvider>
 
-          <TileDialog
-            open={dialogState !== null}
-            tile={dialogState?.type === "edit" ? dialogState.tile : undefined}
-            onClose={() => setDialogState(null)}
-            onSave={saveTile}
-          />
-
-          <SettingsDialog
-            open={settingsOpen}
-            settings={settings}
-            onClose={() => setSettingsOpen(false)}
-            onPersist={persistSettings}
-            onStatus={showToast}
-          />
-        </NewTabShell>
+            <SettingsDialog
+              open={settingsOpen}
+              settings={settings}
+              onClose={() => setSettingsOpen(false)}
+              onPersist={persistSettings}
+              onStatus={showToast}
+            />
+          </StyledMain>
+        </>
       )}
-      <Toaster
-        position="bottom-right"
-        toastOptions={{
-          duration: 3500,
-          style: {
-            border: "1px solid rgba(255, 255, 255, 0.14)",
-            background: "#101816",
-            color: "#f7faf9",
-          },
-          success: {
-            iconTheme: {
-              primary: "#008a74",
-              secondary: "#ffffff",
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: "#c62828",
-              secondary: "#ffffff",
-            },
-          },
-        }}
-      />
-    </AppTheme>
+
+      <Toaster position="bottom-right" />
+    </>
   );
 }

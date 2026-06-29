@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
-import { DEFAULT_SETTINGS, loadSettings, saveSettings, type AppSettings } from "../settings";
-import { showToast } from "../utils/toast";
+import {
+  DEFAULT_SETTINGS,
+  loadSettings,
+  saveSettings,
+  type AppSettings,
+} from "~/settings";
+import { showToast } from "~/utils/toast";
 
 export function useStoredSettings() {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS);

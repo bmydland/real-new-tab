@@ -1,6 +1,6 @@
 export type TileSize = "normal" | "wide" | "large";
 
-export type Tile = {
+export type TileType = {
   id: string;
   url: string;
   label: string;
@@ -15,7 +15,8 @@ export type AppSettings = {
   version: 1;
   backgroundColor: string;
   backgroundImage?: string;
-  tiles: Tile[];
+  gridRows: number;
+  tiles: TileType[];
 };
 
 export type SettingsExport = {

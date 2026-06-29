@@ -1,5 +1,6 @@
 import {
   Button,
+  Dialog,
   DialogBlock,
   Fieldset,
   Heading,
@@ -7,35 +8,25 @@ import {
   Textfield,
   ValidationMessage,
 } from "@digdir/designsystemet-react";
-import { useEffect, useState, type ChangeEvent, type ComponentPropsWithoutRef } from "react";
-import { readFileAsDataUrl } from "../utils/file/readFileAsDataUrl";
-import { isValidUrl, normalizeUrl } from "../utils/url";
-import type { Tile, TileSize } from "../settings";
 import {
-  DialogActions,
-  DialogHeader,
-  FieldGrid,
-  FileActions,
-  FormStack,
-  HiddenFileInput,
-  IconPreview,
-  RadioGrid,
-  StyledDialog,
-} from "./TileDialog.styles";
+  useEffect,
+  useState,
+  type ChangeEvent,
+  type ComponentPropsWithoutRef,
+} from "react";
+import type { TileType, TileSize } from "~/settings";
+import type { TileFormValue } from "~/types";
+import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
+import { isValidUrl, normalizeUrl } from "~/utils/url";
+import * as Styles from "~/components/TileBoard/styles";
 
-type FormSubmitEvent = Parameters<NonNullable<ComponentPropsWithoutRef<"form">["onSubmit"]>>[0];
-
-export type TileFormValue = {
-  url: string;
-  label: string;
-  color: string;
-  size: TileSize;
-  icon?: string;
-};
+type FormSubmitEvent = Parameters<
+  NonNullable<ComponentPropsWithoutRef<"form">["onSubmit"]>
+>[0];
 
 type TileDialogProps = {
   open: boolean;
-  tile?: Tile;
+  tile?: TileType;
   onClose: () => void;
   onSave: (form: TileFormValue) => Promise<void>;
 };
@@ -43,7 +34,7 @@ type TileDialogProps = {
 const EMPTY_TILE_FORM: TileFormValue = {
   url: "",
   label: "",
-  color: "#008a8a",
+  color: "#000000",
   size: "normal",
 };
 
@@ -53,7 +44,7 @@ const TILE_SIZE_OPTIONS: Array<{ value: TileSize; label: string }> = [
   { value: "large", label: "Large" },
 ];
 
-export function TileDialog({ open, tile, onClose, onSave }: TileDialogProps) {
+export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
   const [form, setForm] = useState<TileFormValue>(EMPTY_TILE_FORM);
   const [formError, setFormError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
@@ -123,33 +114,33 @@ export function TileDialog({ open, tile, onClose, onSave }: TileDialogProps) {
   }
 
   return (
-    <StyledDialog
+    <Dialog
       open={open}
       closedby="any"
       closeButton="Close dialog"
       onClose={onClose}
     >
       <DialogBlock>
-        <DialogHeader>
+        <Styles.DialogHeader>
           <Heading level={1} data-size="sm">
             {tile ? "Edit tile" : "Add tile"}
           </Heading>
-        </DialogHeader>
+        </Styles.DialogHeader>
       </DialogBlock>
 
       <DialogBlock>
-        <FormStack id="tile-form" onSubmit={(event) => handleSubmit(event)}>
+        <Styles.FormStack id="tile-form" onSubmit={(e) => handleSubmit(e)}>
           <Textfield
             autoFocus
             label="Link"
             placeholder="https://example.com"
             value={form.url}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, url: event.target.value }))
+            onChange={(e) =>
+              setForm((current) => ({ ...current, url: e.target.value }))
             }
           />
 
-          <FieldGrid>
+          <Styles.FieldGrid>
             <Textfield
               label="Label"
               placeholder="Example"
@@ -161,6 +152,7 @@ export function TileDialog({ open, tile, onClose, onSave }: TileDialogProps) {
                 }))
               }
             />
+
             <Textfield
               label="Color"
               type="color"
@@ -172,11 +164,11 @@ export function TileDialog({ open, tile, onClose, onSave }: TileDialogProps) {
                 }))
               }
             />
-          </FieldGrid>
+          </Styles.FieldGrid>
 
           <Fieldset>
             <Fieldset.Legend>Size</Fieldset.Legend>
-            <RadioGrid>
+            <Styles.RadioGrid>
               {TILE_SIZE_OPTIONS.map((option) => (
                 <Radio
                   key={option.value}
@@ -190,14 +182,14 @@ export function TileDialog({ open, tile, onClose, onSave }: TileDialogProps) {
                   variant="outline"
                 />
               ))}
-            </RadioGrid>
+            </Styles.RadioGrid>
           </Fieldset>
 
-          <FileActions>
+          <Styles.FileActions>
             <Button asChild variant="secondary">
               <label>
                 Choose icon
-                <HiddenFileInput
+                <Styles.HiddenFileInput
                   type="file"
                   accept="image/*"
                   onChange={(event) => void handleIconChange(event)}
@@ -205,9 +197,9 @@ export function TileDialog({ open, tile, onClose, onSave }: TileDialogProps) {
               </label>
             </Button>
 
-            {form.icon ? <IconPreview src={form.icon} alt="" /> : null}
+            {form.icon && <Styles.IconPreview src={form.icon} alt="" />}
 
-            {form.icon ? (
+            {form.icon && (
               <Button
                 type="button"
                 variant="tertiary"
@@ -217,25 +209,24 @@ export function TileDialog({ open, tile, onClose, onSave }: TileDialogProps) {
               >
                 Remove icon
               </Button>
-            ) : null}
-          </FileActions>
+            )}
+          </Styles.FileActions>
 
-          {formError ? (
-            <ValidationMessage>{formError}</ValidationMessage>
-          ) : null}
-        </FormStack>
+          {formError && <ValidationMessage>{formError}</ValidationMessage>}
+        </Styles.FormStack>
       </DialogBlock>
 
       <DialogBlock>
-        <DialogActions>
+        <Styles.DialogActions>
           <Button type="submit" form="tile-form" loading={isSaving}>
             {tile ? "Save tile" : "Create tile"}
           </Button>
+
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-        </DialogActions>
+        </Styles.DialogActions>
       </DialogBlock>
-    </StyledDialog>
+    </Dialog>
   );
 }
