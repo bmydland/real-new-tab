@@ -1,40 +1,34 @@
 import { Button } from "@digdir/designsystemet-react";
 import styled, { css } from "styled-components";
-
-export const StyledMain = styled.main<{
-  $backgroundColor: string;
-  $backgroundImage?: string;
-}>`
-  min-height: 100dvh;
-  padding-block: 80px;
-  padding-inline: var(--tile-gap);
-  width: 100%;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  background-color: ${({ $backgroundColor }) => $backgroundColor};
-  background-image: ${({ $backgroundImage }) =>
-    $backgroundImage && `url(${$backgroundImage})`};
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  box-sizing: border-box;
-`;
+import type { BackgroundPosition } from "~/settings";
 
 export const Toolbar = styled.header`
-  position: fixed;
-  top: 18px;
-  right: 18px;
+  position: sticky;
+  top: 0;
+  right: 0;
   z-index: 10;
   display: flex;
-  gap: 8px;
+  align-self: flex-end;
+  gap: 4px;
+  height: 0;
+
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transition-delay: 0.5s;
+
+  &:hover {
+    opacity: 1;
+    transition-delay: 0s;
+  }
+
+  @media (max-width: 700px) {
+    height: auto;
+  }
 
   @media (max-width: 500px) {
-    position: relative;
     flex-wrap: wrap;
     inset: 0;
     width: 100%;
-    margin: 15px 15px 50px 15px;
     padding-inline: 10px;
 
     > button {
@@ -46,12 +40,11 @@ export const Toolbar = styled.header`
 `;
 
 export const ToolbarButton = styled(Button)<{ icon?: boolean }>`
-  min-width: 44px;
   border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 100px;
-  padding: 0 14px;
   color: var(--color-light);
-  background: rgba(10, 15, 15, 0.62);
+  background-color: rgba(10, 15, 15, 0.62);
+  transition: background-color 0.4s ease;
   font-size: 0.82rem;
   backdrop-filter: blur(12px);
 
@@ -62,6 +55,33 @@ export const ToolbarButton = styled(Button)<{ icon?: boolean }>`
     `};
 
   &:hover {
-    background: rgba(10, 15, 15, 0.78);
+    background-color: rgba(10, 15, 15, 0.78);
+  }
+`;
+
+export const StyledMain = styled.main<{
+  $backgroundColor: string;
+  $backgroundImage?: string;
+  $backgroundPosition: BackgroundPosition;
+}>`
+  min-height: 100dvh;
+  padding-block: 15px;
+  padding-inline: var(--tile-gap);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  background-color: ${({ $backgroundColor }) => $backgroundColor};
+  background-image: ${({ $backgroundImage }) =>
+    $backgroundImage && `url(${$backgroundImage})`};
+  background-position: ${({ $backgroundPosition }) => $backgroundPosition};
+  background-repeat: no-repeat;
+  background-size: cover;
+  box-sizing: border-box;
+
+  @media (max-width: 720px) {
+    gap: 20px;
   }
 `;

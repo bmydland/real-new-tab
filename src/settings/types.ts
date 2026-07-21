@@ -1,4 +1,5 @@
 export type TileSize = "normal" | "wide" | "large";
+export type BackgroundPosition = "top" | "left" | "center" | "right" | "bottom";
 
 export type TileType = {
   id: string;
@@ -7,6 +8,7 @@ export type TileType = {
   color: string;
   size: TileSize;
   icon?: string;
+  iconSize: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -15,6 +17,7 @@ export type AppSettings = {
   version: 1;
   backgroundColor: string;
   backgroundImage?: string;
+  backgroundPosition: BackgroundPosition;
   gridRows: number;
   tiles: TileType[];
 };

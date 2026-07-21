@@ -2,6 +2,7 @@ import { coerceHexColor } from "~/utils/color";
 import { isRecord } from "~/utils/isRecord";
 import { normalizeUrl } from "~/utils/url";
 import { createTileId } from "./createTileId";
+import { TILE_ICON_SIZE_RANGE } from "./constants";
 import type { TileType, TileSize } from "./types";
 
 export function legacyTileToTile(value: unknown): TileType | null {
@@ -24,6 +25,7 @@ export function legacyTileToTile(value: unknown): TileType | null {
     label,
     color: coerceHexColor(value.bgcolor, "#008a8a"),
     size: legacyTileSize(value.dimens),
+    iconSize: TILE_ICON_SIZE_RANGE.default,
     createdAt: now,
     updatedAt: now,
   };

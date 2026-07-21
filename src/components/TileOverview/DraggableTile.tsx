@@ -37,6 +37,7 @@ export function DraggableTile({
     size: tileSize,
     url: tileUrl,
     icon: tileIcon,
+    iconSize: tileIconSize,
   } = tile;
 
   const frameRef = useRef<HTMLElement>(null);
@@ -83,7 +84,7 @@ export function DraggableTile({
   drop(frameRef);
 
   return (
-    <TileComponent.TileFrame
+    <TileComponent.TileElement
       ref={frameRef}
       $color={tileColor}
       $isDragging={isDragging}
@@ -91,7 +92,12 @@ export function DraggableTile({
       $size={tileSize}
     >
       <TileComponent.TileLink href={tileUrl} title={tileLabel}>
-        <TileComponent.TileIcon src={tileIcon} alt="" draggable={false} />
+        <TileComponent.TileIcon
+          src={tileIcon}
+          alt=""
+          draggable={false}
+          $iconSize={tileIconSize}
+        />
       </TileComponent.TileLink>
 
       <TileComponent.TileDragHandle
@@ -118,6 +124,6 @@ export function DraggableTile({
           <TrashIcon aria-hidden />
         </TileComponent.TileActionButton>
       </TileComponent.TileActions>
-    </TileComponent.TileFrame>
+    </TileComponent.TileElement>
   );
 }

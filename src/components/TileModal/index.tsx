@@ -2,8 +2,11 @@ import {
   Button,
   Dialog,
   DialogBlock,
+  Divider,
+  Field,
   Fieldset,
   Heading,
+  Label,
   Radio,
   Textfield,
   ValidationMessage,
@@ -18,7 +21,9 @@ import type { TileType, TileSize } from "~/settings";
 import type { TileFormValue } from "~/types";
 import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
 import { isValidUrl, normalizeUrl } from "~/utils/url";
-import * as Styles from "~/components/TileBoard/styles";
+import * as Styles from "~/components/TileOverview/styles";
+import { TILE_ICON_SIZE_RANGE } from "~/settings/constants";
+import { ModalHeader, StickyFooter } from "~/components/Modal";
 
 type FormSubmitEvent = Parameters<
   NonNullable<ComponentPropsWithoutRef<"form">["onSubmit"]>
@@ -36,6 +41,7 @@ const EMPTY_TILE_FORM: TileFormValue = {
   label: "",
   color: "#000000",
   size: "normal",
+  iconSize: TILE_ICON_SIZE_RANGE.default,
 };
 
 const TILE_SIZE_OPTIONS: Array<{ value: TileSize; label: string }> = [
@@ -62,6 +68,7 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
             color: tile.color,
             size: tile.size,
             icon: tile.icon,
+            iconSize: tile.iconSize,
           }
         : EMPTY_TILE_FORM,
     );
@@ -116,117 +123,157 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
   return (
     <Dialog
       open={open}
+      placement="right"
       closedby="any"
-      closeButton="Close dialog"
+      closeButton={false}
+      modal={false}
       onClose={onClose}
+      // To make bottom positioned footer work:
+      style={{ display: "flex", flexDirection: "column", width: "100%" }}
     >
       <DialogBlock>
-        <Styles.DialogHeader>
-          <Heading level={1} data-size="sm">
-            {tile ? "Edit tile" : "Add tile"}
-          </Heading>
-        </Styles.DialogHeader>
-      </DialogBlock>
+        <ModalHeader
+          title={tile ? "Edit tile" : "Add tile"}
+          onClick={onClose}
+        />
 
-      <DialogBlock>
-        <Styles.FormStack id="tile-form" onSubmit={(e) => handleSubmit(e)}>
-          <Textfield
-            autoFocus
-            label="Link"
-            placeholder="https://example.com"
-            value={form.url}
-            onChange={(e) =>
-              setForm((current) => ({ ...current, url: e.target.value }))
-            }
-          />
-
-          <Styles.FieldGrid>
+        <form id="tile-form" onSubmit={(e) => handleSubmit(e)}>
+          <Styles.VerticalStack>
             <Textfield
-              label="Label"
-              placeholder="Example"
-              value={form.label}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  label: event.target.value,
-                }))
+              autoFocus
+              label="Link"
+              placeholder="https://example.no"
+              value={form.url}
+              onChange={(e) =>
+                setForm((current) => ({ ...current, url: e.target.value }))
               }
             />
 
-            <Textfield
-              label="Color"
-              type="color"
-              value={form.color}
-              onChange={(event) =>
-                setForm((current) => ({
-                  ...current,
-                  color: event.target.value,
-                }))
-              }
-            />
-          </Styles.FieldGrid>
-
-          <Fieldset>
-            <Fieldset.Legend>Size</Fieldset.Legend>
-            <Styles.RadioGrid>
-              {TILE_SIZE_OPTIONS.map((option) => (
-                <Radio
-                  key={option.value}
-                  label={option.label}
-                  name="tile-size"
-                  value={option.value}
-                  checked={form.size === option.value}
-                  onChange={() =>
-                    setForm((current) => ({ ...current, size: option.value }))
-                  }
-                  variant="outline"
-                />
-              ))}
-            </Styles.RadioGrid>
-          </Fieldset>
-
-          <Styles.FileActions>
-            <Button asChild variant="secondary">
-              <label>
-                Choose icon
-                <Styles.HiddenFileInput
-                  type="file"
-                  accept="image/*"
-                  onChange={(event) => void handleIconChange(event)}
-                />
-              </label>
-            </Button>
-
-            {form.icon && <Styles.IconPreview src={form.icon} alt="" />}
-
-            {form.icon && (
-              <Button
-                type="button"
-                variant="tertiary"
-                onClick={() =>
-                  setForm((current) => ({ ...current, icon: undefined }))
+            <Styles.FieldGrid>
+              <Textfield
+                label="Label"
+                placeholder="Example"
+                value={form.label}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    label: event.target.value,
+                  }))
                 }
-              >
-                Remove icon
-              </Button>
-            )}
-          </Styles.FileActions>
+              />
 
-          {formError && <ValidationMessage>{formError}</ValidationMessage>}
-        </Styles.FormStack>
+              <Textfield
+                label="Color"
+                type="color"
+                value={form.color}
+                onChange={(event) =>
+                  setForm((current) => ({
+                    ...current,
+                    color: event.target.value,
+                  }))
+                }
+              />
+            </Styles.FieldGrid>
+
+            <Divider />
+
+            <Heading level={2} data-size="sm">
+              Tile size and icon
+            </Heading>
+
+            <Styles.VerticalStack>
+              <Fieldset>
+                <Fieldset.Legend>Size</Fieldset.Legend>
+
+                <Styles.RadioGrid>
+                  {TILE_SIZE_OPTIONS.map((option) => (
+                    <Radio
+                      key={option.value}
+                      label={option.label}
+                      name="tile-size"
+                      value={option.value}
+                      checked={form.size === option.value}
+                      onChange={() =>
+                        setForm((current) => ({
+                          ...current,
+                          size: option.value,
+                        }))
+                      }
+                      variant="outline"
+                    />
+                  ))}
+                </Styles.RadioGrid>
+              </Fieldset>
+
+              <Field>
+                <Styles.RangeLabel>
+                  <Label htmlFor="tile-icon-size">Icon size</Label>
+                  <span aria-hidden="true">{form.iconSize}%</span>
+                </Styles.RangeLabel>
+
+                <Styles.RangeInput
+                  id="tile-icon-size"
+                  type="range"
+                  min={TILE_ICON_SIZE_RANGE.min}
+                  max={TILE_ICON_SIZE_RANGE.max}
+                  step={TILE_ICON_SIZE_RANGE.step}
+                  value={form.iconSize}
+                  aria-valuetext={`${form.iconSize}%`}
+                  onChange={(event) => {
+                    const iconSize = event.currentTarget.valueAsNumber;
+
+                    setForm((current) => ({
+                      ...current,
+                      iconSize,
+                    }));
+                  }}
+                />
+              </Field>
+
+              <Styles.FileActions>
+                <Button asChild variant="secondary">
+                  <label>
+                    Choose icon
+                    <Styles.HiddenFileInput
+                      type="file"
+                      accept="image/*"
+                      onChange={(event) => void handleIconChange(event)}
+                    />
+                  </label>
+                </Button>
+
+                {form.icon && <Styles.IconPreview src={form.icon} alt="" />}
+
+                {form.icon && (
+                  <Button
+                    type="button"
+                    variant="tertiary"
+                    onClick={() =>
+                      setForm((current) => ({ ...current, icon: undefined }))
+                    }
+                  >
+                    Remove icon
+                  </Button>
+                )}
+              </Styles.FileActions>
+            </Styles.VerticalStack>
+
+            {formError && <ValidationMessage>{formError}</ValidationMessage>}
+          </Styles.VerticalStack>
+        </form>
       </DialogBlock>
 
-      <DialogBlock>
+      <StickyFooter>
         <Styles.DialogActions>
-          <Button type="submit" form="tile-form" loading={isSaving}>
-            {tile ? "Save tile" : "Create tile"}
-          </Button>
-
           <Button type="button" variant="secondary" onClick={onClose}>
             Cancel
           </Button>
+
+          <Button type="submit" form="tile-form" loading={isSaving}>
+            {tile ? "Save tile" : "Create tile"}
+          </Button>
         </Styles.DialogActions>
-      </DialogBlock>
+      </StickyFooter>
     </Dialog>
   );
 }

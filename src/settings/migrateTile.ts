@@ -3,7 +3,7 @@ import { coerceImageDataUrl } from "~/utils/image";
 import { isRecord } from "~/utils/isRecord";
 import { normalizeUrl } from "~/utils/url";
 import { createTileId } from "./createTileId";
-import { TILE_SIZES } from "./constants";
+import { TILE_ICON_SIZE_RANGE, TILE_SIZES } from "./constants";
 import type { TileType, TileSize } from "./types";
 
 const DEFAULT_TILE_COLOR = "#008a8a";
@@ -27,6 +27,7 @@ export function migrateTile(value: unknown): TileType | null {
     color: coerceHexColor(value.color, DEFAULT_TILE_COLOR),
     size: coerceTileSize(value.size),
     icon: coerceImageDataUrl(value.icon),
+    iconSize: coerceTileIconSize(value.iconSize),
     createdAt:
       typeof value.createdAt === "string"
         ? value.createdAt
@@ -36,6 +37,17 @@ export function migrateTile(value: unknown): TileType | null {
         ? value.updatedAt
         : new Date().toISOString(),
   };
+}
+
+function coerceTileIconSize(value: unknown): number {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return TILE_ICON_SIZE_RANGE.default;
+  }
+
+  return Math.min(
+    TILE_ICON_SIZE_RANGE.max,
+    Math.max(TILE_ICON_SIZE_RANGE.min, Math.round(value)),
+  );
 }
 
 export function coerceTileSize(value: unknown): TileSize {

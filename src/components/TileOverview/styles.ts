@@ -3,15 +3,17 @@ import styled from "styled-components";
 import type { TileSize } from "~/settings";
 import { getReadableTileTextColor } from "~/utils/color";
 
-export const DialogHeader = styled.div`
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-4);
+const DELAY_BUTTON_REVEAL = "0.75s" as const;
+
+export const StyledCloseButton = styled(Button)`
+  float: inline-end;
+  align-items: center;
+  margin: 0;
 `;
 
-export const FormStack = styled.form`
-  display: grid;
+export const VerticalStack = styled.div`
+  display: flex;
+  flex-direction: column;
   gap: var(--space-4);
 `;
 
@@ -29,6 +31,17 @@ export const RadioGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-2);
+
+  .ds-field[data-variant="outline"] {
+    position: relative;
+  }
+
+  /* Workaround to get whole element clickable */
+  .ds-field[data-variant="outline"] > label::after {
+    position: absolute;
+    content: "";
+    inset: 0;
+  }
 
   @media (max-width: 420px) {
     grid-template-columns: 1fr;
@@ -54,6 +67,7 @@ export const HiddenFileInput = styled.input`
 export const DialogActions = styled.div`
   display: flex;
   flex-wrap: wrap;
+  justify-content: end;
   gap: var(--space-2);
 `;
 
@@ -66,9 +80,28 @@ export const IconPreview = styled.img`
   background: var(--ds-color-surface-tinted);
 `;
 
+export const RangeLabel = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+
+  span {
+    font-variant-numeric: tabular-nums;
+  }
+`;
+
+export const RangeInput = styled.input`
+  width: 100%;
+  margin: 0;
+  cursor: pointer;
+`;
+
 export const TileStage = styled.section`
   display: grid;
   place-items: center;
+  flex: 1;
+  width: 100%;
 `;
 
 export const TileGrid = styled.div<{ $rowCount: number }>`
@@ -83,23 +116,23 @@ export const TileGrid = styled.div<{ $rowCount: number }>`
   max-width: 100%;
 
   @media (max-width: 720px) {
-    grid-template-columns: repeat(4, var(--tile-size));
+    width: 100%;
     grid-template-rows: none;
+    grid-template-columns: repeat(auto-fit, minmax(var(--tile-size), 1fr));
     grid-auto-columns: auto;
     grid-auto-rows: var(--tile-size);
     grid-auto-flow: row dense;
   }
 
-  @media (max-width: 420px) {
-    grid-template-columns: repeat(3, var(--tile-size));
-  }
-
-  @media (max-width: 320px) {
-    grid-template-columns: repeat(2, var(--tile-size));
+  @media (max-width: 360px) {
+    display: flex;
+    width: fit-content;
+    flex-direction: column;
+    align-items: center;
   }
 `;
 
-export const TileFrame = styled.article<{
+export const TileElement = styled.article<{
   $color: string;
   $isDragging?: boolean;
   $isDropTarget?: boolean;
@@ -111,8 +144,6 @@ export const TileFrame = styled.article<{
   overflow: hidden;
   grid-column: ${({ $size }) => ($size === "normal" ? "span 1" : "span 2")};
   grid-row: ${({ $size }) => ($size === "large" ? "span 2" : "span 1")};
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 2px;
   color: ${({ $color }) => getReadableTileTextColor($color)};
   background: ${({ $color }) => $color};
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
@@ -123,6 +154,24 @@ export const TileFrame = styled.article<{
   transition:
     opacity 120ms ease,
     outline-color 120ms ease;
+
+  &:hover button,
+  &:focus-within button {
+    opacity: 1;
+    transition-delay: ${DELAY_BUTTON_REVEAL};
+  }
+
+  @media (max-width: 360px) {
+    flex: none;
+    width: ${({ $size }) =>
+      $size === "normal"
+        ? "var(--tile-size)"
+        : "calc(var(--tile-size) * 2 + var(--tile-gap))"};
+    height: ${({ $size }) =>
+      $size === "large"
+        ? "calc(var(--tile-size) * 2 + var(--tile-gap))"
+        : "var(--tile-size)"};
+  }
 `;
 
 export const TileLink = styled.a`
@@ -135,9 +184,10 @@ export const TileLink = styled.a`
   width: 100%;
 `;
 
-export const TileIcon = styled.img`
-  width: min(64%, 90px);
-  display: inline;
+export const TileIcon = styled.img<{ $iconSize: number }>`
+  width: ${({ $iconSize }) => `${$iconSize}%`};
+  max-height: 100%;
+  display: block;
   object-fit: contain;
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.1));
 `;
@@ -158,7 +208,7 @@ export const TileDragHandle = styled.button`
   background: rgba(255, 255, 255, 0.86);
   cursor: grab;
   opacity: 0;
-  transition: opacity 140ms ease;
+  transition: opacity 0.2s ease;
 
   &::before {
     content: "";
@@ -171,11 +221,6 @@ export const TileDragHandle = styled.button`
   &:active {
     cursor: grabbing;
   }
-
-  ${TileFrame}:hover &,
-  ${TileFrame}:focus-within & {
-    opacity: 1;
-  }
 `;
 
 export const TileActions = styled.div`
@@ -185,13 +230,6 @@ export const TileActions = styled.div`
   z-index: 2;
   display: flex;
   gap: 6px;
-  opacity: 0;
-  transition: opacity 140ms ease;
-
-  ${TileFrame}:hover &,
-  ${TileFrame}:focus-within & {
-    opacity: 1;
-  }
 `;
 
 export const TileActionButton = styled(Button)`
@@ -201,6 +239,8 @@ export const TileActionButton = styled(Button)`
   color: black;
   padding: 0;
   padding-inline: 3px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 `;
 
 export const EmptyState = styled.button`

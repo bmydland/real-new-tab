@@ -6,7 +6,7 @@ import { Toaster } from "react-hot-toast";
 import {
   PageSpinner,
   SettingsDialog,
-  TileBoard,
+  TileOverview,
   TileModal,
 } from "~/components";
 import { useStoredSettings } from "~/hooks";
@@ -41,6 +41,7 @@ export default function App() {
       color: form.color,
       size: form.size,
       icon: form.icon,
+      iconSize: form.iconSize,
       createdAt: existingTile?.createdAt ?? now,
       updatedAt: now,
     };
@@ -90,56 +91,52 @@ export default function App() {
       {isLoading && <PageSpinner />}
 
       {!isLoading && (
-        <>
-          <StyledMain
-            $backgroundColor={settings.backgroundColor}
-            $backgroundImage={settings.backgroundImage}
-          >
-            <Toolbar aria-label="New tab actions">
-              <ToolbarButton
-                type="button"
-                onClick={() => setDialogState({ type: "add" })}
-              >
-                <PlusCircleIcon aria-hidden />
-                Add tile
-              </ToolbarButton>
+        <StyledMain
+          $backgroundColor={settings.backgroundColor}
+          $backgroundImage={settings.backgroundImage}
+          $backgroundPosition={settings.backgroundPosition}
+        >
+          <Toolbar aria-label="New tab actions">
+            <ToolbarButton
+              type="button"
+              onClick={() => setDialogState({ type: "add" })}
+            >
+              <PlusCircleIcon aria-hidden />
+              Add tile
+            </ToolbarButton>
 
-              <ToolbarButton
-                type="button"
-                onClick={() => setSettingsOpen(true)}
-              >
-                <WrenchIcon />
-                Settings
-              </ToolbarButton>
-            </Toolbar>
+            <ToolbarButton type="button" onClick={() => setSettingsOpen(true)}>
+              <WrenchIcon />
+              Settings
+            </ToolbarButton>
+          </Toolbar>
 
-            <DndProvider backend={HTML5Backend}>
-              <TileBoard
-                tiles={settings.tiles}
-                rowCount={settings.gridRows}
-                onAdd={() => setDialogState({ type: "add" })}
-                onDelete={(id) => deleteTile(id)}
-                onEdit={(tile) => setDialogState({ type: "edit", tile })}
-                onReorder={reorderTiles}
-              />
-            </DndProvider>
-
-            <TileModal
-              open={dialogState !== null}
-              tile={dialogState?.type === "edit" ? dialogState.tile : undefined}
-              onClose={() => setDialogState(null)}
-              onSave={saveTile}
+          <DndProvider backend={HTML5Backend}>
+            <TileOverview
+              tiles={settings.tiles}
+              rowCount={settings.gridRows}
+              onAdd={() => setDialogState({ type: "add" })}
+              onDelete={(id) => deleteTile(id)}
+              onEdit={(tile) => setDialogState({ type: "edit", tile })}
+              onReorder={reorderTiles}
             />
+          </DndProvider>
 
-            <SettingsDialog
-              open={settingsOpen}
-              settings={settings}
-              onClose={() => setSettingsOpen(false)}
-              onPersist={persistSettings}
-              onStatus={showToast}
-            />
-          </StyledMain>
-        </>
+          <TileModal
+            open={dialogState !== null}
+            tile={dialogState?.type === "edit" ? dialogState.tile : undefined}
+            onClose={() => setDialogState(null)}
+            onSave={saveTile}
+          />
+
+          <SettingsDialog
+            open={settingsOpen}
+            settings={settings}
+            onClose={() => setSettingsOpen(false)}
+            onPersist={persistSettings}
+            onStatus={showToast}
+          />
+        </StyledMain>
       )}
 
       <Toaster position="bottom-right" />

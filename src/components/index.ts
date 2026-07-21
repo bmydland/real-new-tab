@@ -1,4 +1,4 @@
 export * from "./Spinner";
 export { SettingsModal as SettingsDialog } from "./SettingsModal";
-export { TileBoard } from "./TileBoard";
+export { TileOverview } from "./TileOverview";
 export { TileModal } from "./TileModal";

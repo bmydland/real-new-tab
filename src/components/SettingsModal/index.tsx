@@ -1,5 +1,11 @@
 import type { ChangeEvent } from "react";
 import {
+  FileExportIcon,
+  FileImportIcon,
+  TrashIcon,
+  UploadIcon,
+} from "@navikt/aksel-icons";
+import {
   Button,
   Dialog,
   DialogBlock,
@@ -13,11 +19,13 @@ import {
   createSettingsExport,
   parseSettingsImport,
   type AppSettings,
+  type BackgroundPosition,
 } from "~/settings";
 import type { ToastKind } from "~/utils/toast";
 import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
 import { readFileAsText } from "~/utils/file/readFileAsText";
 import * as Styles from "./styles";
+import { ModalHeader } from "~/components/Modal";
 
 interface Props {
   open: boolean;
@@ -27,9 +35,19 @@ interface Props {
   onStatus: (message: string, kind?: ToastKind) => void;
 }
 
-const GRID_ROW_OPTIONS = [2, 3, 4, 5, 6];
+const GRID_ROW_OPTIONS = [2, 3, 4, 5];
 
-// TODO: When import/export is successfull, close modal
+const BACKGROUND_POSITION_OPTIONS: Array<{
+  label: string;
+  value: BackgroundPosition;
+}> = [
+  { label: "Top", value: "top" },
+  { label: "Left", value: "left" },
+  { label: "Center", value: "center" },
+  { label: "Right", value: "right" },
+  { label: "Bottom", value: "bottom" },
+];
+
 export function SettingsModal({
   open,
   settings,
@@ -63,17 +81,29 @@ export function SettingsModal({
     );
   }
 
+  async function changeBackgroundPosition(
+    event: ChangeEvent<HTMLSelectElement>,
+  ) {
+    const backgroundPosition = event.currentTarget.value as BackgroundPosition;
+
+    await onPersist(
+      { ...settings, backgroundPosition },
+      "Background position saved.",
+    );
+  }
+
   async function changeGridRows(event: ChangeEvent<HTMLSelectElement>) {
     const gridRows = Number(event.currentTarget.value);
 
     await onPersist({ ...settings, gridRows }, "Grid layout saved.");
   }
 
-  function exportSettings() {
+  function exportSettingsHandler() {
     const payload = createSettingsExport(settings);
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json;charset=utf-8",
     });
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
@@ -81,11 +111,13 @@ export function SettingsModal({
     link.download = `realnewtab-settings-${new Date().toISOString().slice(0, 10)}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    onStatus("Settings exported.", "success");
+    onStatus("Settings exported!", "success");
+    onClose();
   }
 
   async function importSettings(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.currentTarget.files?.[0];
+    const input = event.currentTarget;
+    const file = input.files?.[0];
 
     if (!file) {
       return;
@@ -96,34 +128,29 @@ export function SettingsModal({
         await readFileAsText(file),
         settings,
       );
-      await onPersist(imported, "Settings imported.");
+      await onPersist(imported, "Settings imported!");
+      onClose();
     } catch (error) {
       onStatus(
         error instanceof Error ? error.message : "Could not import settings.",
         "error",
       );
     } finally {
-      event.currentTarget.value = "";
+      input.value = "";
     }
   }
 
   return (
     <Dialog
       open={open}
-      modal={false}
       placement="right"
       closedby="any"
-      closeButton="Close dialog"
+      closeButton={false}
       onClose={onClose}
-      style={{ zIndex: 100 }}
     >
       <DialogBlock>
-        <Heading level={1} data-size="sm">
-          Settings
-        </Heading>
-      </DialogBlock>
+        <ModalHeader title="Settings" />
 
-      <DialogBlock>
         <Styles.SettingsStack>
           <Styles.SettingsSection>
             <Heading level={2} data-size="xs">
@@ -131,10 +158,7 @@ export function SettingsModal({
             </Heading>
 
             <Field>
-              <Label htmlFor="grid-rows">Maximum rows</Label>
-              <Field.Description>
-                The grid stays only as wide as needed for this many rows.
-              </Field.Description>
+              <Label htmlFor="grid-rows">Maximum vertical rows</Label>
 
               <Select
                 id="grid-rows"
@@ -159,8 +183,9 @@ export function SettingsModal({
             </Heading>
 
             <Styles.SettingsActions>
-              <Button asChild variant="secondary">
+              <Button asChild variant="primary">
                 <label>
+                  <UploadIcon aria-hidden />
                   Upload image
                   <Styles.HiddenFileInput
                     type="file"
@@ -172,12 +197,30 @@ export function SettingsModal({
 
               <Button
                 type="button"
-                variant="tertiary"
+                variant="secondary"
                 onClick={() => void clearBackground()}
               >
+                <TrashIcon aria-hidden />
                 Remove image
               </Button>
             </Styles.SettingsActions>
+
+            <Field>
+              <Label htmlFor="background-position">Background position</Label>
+
+              <Select
+                id="background-position"
+                width="auto"
+                value={settings.backgroundPosition}
+                onChange={(event) => void changeBackgroundPosition(event)}
+              >
+                {BACKGROUND_POSITION_OPTIONS.map(({ label, value }) => (
+                  <Select.Option key={value} value={value}>
+                    {label}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Field>
           </Styles.SettingsSection>
 
           <Divider />
@@ -188,12 +231,14 @@ export function SettingsModal({
             </Heading>
 
             <Styles.SettingsActions>
-              <Button type="button" onClick={exportSettings}>
+              <Button type="button" onClick={exportSettingsHandler}>
+                <FileExportIcon aria-hidden />
                 Export settings
               </Button>
 
               <Button asChild variant="secondary">
                 <label>
+                  <FileImportIcon aria-hidden />
                   Import settings
                   <Styles.HiddenFileInput
                     type="file"

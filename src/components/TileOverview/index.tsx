@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import type { TileType } from "~/settings";
 import { moveArrayItem } from "~/utils/array/moveArrayItem";
 import { EmptyState, TileGrid, TileStage } from "./styles";
-import { DraggableTile } from "~/components/TileBoard/DraggableTile";
-import { hasTileOrderChanged } from "~/components/TileBoard/hasTileOrderChanged";
+import { DraggableTile } from "~/components/TileOverview/DraggableTile";
+import { hasTileOrderChanged } from "~/components/TileOverview/hasTileOrderChanged";
 
-type TileBoardProps = {
+type TileOverviewProps = {
   tiles: TileType[];
   rowCount: number;
   onAdd: () => void;
@@ -14,14 +14,14 @@ type TileBoardProps = {
   onReorder: (tiles: TileType[]) => Promise<void>;
 };
 
-export function TileBoard({
+export function TileOverview({
   tiles,
   rowCount,
   onAdd,
   onDelete,
   onEdit,
   onReorder,
-}: TileBoardProps) {
+}: TileOverviewProps) {
   const [orderedTiles, setOrderedTiles] = useState(tiles);
   const orderedTilesRef = useRef(orderedTiles);
   const isDraggingRef = useRef(false);
