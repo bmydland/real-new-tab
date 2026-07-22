@@ -149,7 +149,7 @@ export function SettingsModal({
       onClose={onClose}
     >
       <DialogBlock>
-        <ModalHeader title="Settings" />
+        <ModalHeader title="Settings" onClick={onClose} />
 
         <Styles.SettingsStack>
           <Styles.SettingsSection>
