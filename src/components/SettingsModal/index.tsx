@@ -37,6 +37,22 @@ interface Props {
 
 const GRID_ROW_OPTIONS = [2, 3, 4, 5];
 
+function formatBackupTimestamp(date: Date): string {
+  const twoDigits = (value: number) => String(value).padStart(2, "0");
+  const datePart = [
+    date.getFullYear(),
+    twoDigits(date.getMonth() + 1),
+    twoDigits(date.getDate()),
+  ].join("-");
+  const timePart = [
+    twoDigits(date.getHours()),
+    twoDigits(date.getMinutes()),
+    twoDigits(date.getSeconds()),
+  ].join("-");
+
+  return `${datePart}_${timePart}`;
+}
+
 const BACKGROUND_POSITION_OPTIONS: Array<{
   label: string;
   value: BackgroundPosition;
@@ -108,10 +124,10 @@ export function SettingsModal({
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = `realnewtab-settings-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `realnewtab-backup-${formatBackupTimestamp(new Date())}.json`;
     link.click();
     URL.revokeObjectURL(url);
-    onStatus("Settings exported!", "success");
+    onStatus("Backup exported!", "success");
     onClose();
   }
 
@@ -128,7 +144,7 @@ export function SettingsModal({
         await readFileAsText(file),
         settings,
       );
-      await onPersist(imported, "Settings imported!");
+      await onPersist(imported, "Backup imported!");
       onClose();
     } catch (error) {
       onStatus(
@@ -227,19 +243,25 @@ export function SettingsModal({
 
           <Styles.SettingsSection>
             <Heading level={2} data-size="xs">
-              Import / export settings
+              Backup and restore
             </Heading>
+
+            <p style={{ marginTop: 0 }}>
+              Export creates one backup file containing all settings, tiles,
+              background images, and tile icons. Keep this file somewhere safe
+              and import it to restore your setup on another computer.
+            </p>
 
             <Styles.SettingsActions>
               <Button type="button" onClick={exportSettingsHandler}>
                 <FileExportIcon aria-hidden />
-                Export settings
+                Export full backup
               </Button>
 
               <Button asChild variant="secondary">
                 <label>
                   <FileImportIcon aria-hidden />
-                  Import settings
+                  Import backup
                   <Styles.HiddenFileInput
                     type="file"
                     accept="application/json,.json"
