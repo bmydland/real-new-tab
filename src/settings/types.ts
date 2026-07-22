@@ -8,6 +8,7 @@ export type TileType = {
   color: string;
   size: TileSize;
   icon?: string;
+  iconColor?: string;
   iconSize: number;
   createdAt: string;
   updatedAt: string;

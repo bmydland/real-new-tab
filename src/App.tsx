@@ -41,6 +41,7 @@ export default function App() {
       color: form.color,
       size: form.size,
       icon: form.icon,
+      iconColor: form.iconColor,
       iconSize: form.iconSize,
       createdAt: existingTile?.createdAt ?? now,
       updatedAt: now,

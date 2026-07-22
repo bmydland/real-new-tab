@@ -55,6 +55,17 @@ export const FileActions = styled.div`
   gap: var(--space-2);
 `;
 
+export const IconColorControls = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(112px, 150px);
+  align-items: end;
+  gap: var(--space-4);
+
+  @media (max-width: 560px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
 export const HiddenFileInput = styled.input`
   position: absolute;
   width: 1px;
@@ -78,6 +89,28 @@ export const IconPreview = styled.img`
   border-radius: var(--ds-border-radius-sm);
   object-fit: contain;
   background: var(--ds-color-surface-tinted);
+`;
+
+export const IconPreviewFrame = styled.span`
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ds-color-border-subtle);
+  border-radius: var(--ds-border-radius-sm);
+  background: var(--ds-color-surface-tinted);
+`;
+
+export const MaskedIconPreview = styled.span<{
+  $icon: string;
+  $iconColor: string;
+}>`
+  width: 32px;
+  height: 32px;
+  display: block;
+  background-color: ${({ $iconColor }) => $iconColor};
+  -webkit-mask: url(${({ $icon }) => $icon}) center / contain no-repeat;
+  mask: url(${({ $icon }) => $icon}) center / contain no-repeat;
 `;
 
 export const RangeLabel = styled.div`
@@ -189,6 +222,23 @@ export const TileIcon = styled.img<{ $iconSize: number }>`
   max-height: 100%;
   display: block;
   object-fit: contain;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.1));
+`;
+
+export const TileIconMask = styled.span<{
+  $icon: string;
+  $iconColor: string;
+  $iconSize: number;
+}>`
+  width: ${({ $iconSize }) => `${$iconSize}%`};
+  height: ${({ $iconSize }) => `${$iconSize}%`};
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  flex: none;
+  background-color: ${({ $iconColor }) => $iconColor};
+  -webkit-mask: url(${({ $icon }) => $icon}) center / contain no-repeat;
+  mask: url(${({ $icon }) => $icon}) center / contain no-repeat;
   filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.1));
 `;
 

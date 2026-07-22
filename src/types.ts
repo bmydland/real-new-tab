@@ -7,5 +7,6 @@ export type TileFormValue = {
   color: string;
   size: TileSize;
   icon?: string;
+  iconColor?: string;
   iconSize: number;
 };

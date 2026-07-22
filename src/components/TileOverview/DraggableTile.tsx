@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import * as TileComponent from "./styles";
 import type { TileType } from "~/settings";
+import { isSvgImageDataUrl } from "~/utils/image";
 import { PencilIcon, TrashIcon } from "@navikt/aksel-icons";
 
 const TILE_DND_TYPE = "tile";
@@ -37,6 +38,7 @@ export function DraggableTile({
     size: tileSize,
     url: tileUrl,
     icon: tileIcon,
+    iconColor: tileIconColor,
     iconSize: tileIconSize,
   } = tile;
 
@@ -92,12 +94,22 @@ export function DraggableTile({
       $size={tileSize}
     >
       <TileComponent.TileLink href={tileUrl} title={tileLabel}>
-        <TileComponent.TileIcon
-          src={tileIcon}
-          alt=""
-          draggable={false}
-          $iconSize={tileIconSize}
-        />
+        {tileIcon &&
+          (tileIconColor && isSvgImageDataUrl(tileIcon) ? (
+            <TileComponent.TileIconMask
+              aria-hidden
+              $icon={tileIcon}
+              $iconColor={tileIconColor}
+              $iconSize={tileIconSize}
+            />
+          ) : (
+            <TileComponent.TileIcon
+              src={tileIcon}
+              alt=""
+              draggable={false}
+              $iconSize={tileIconSize}
+            />
+          ))}
       </TileComponent.TileLink>
 
       <TileComponent.TileDragHandle

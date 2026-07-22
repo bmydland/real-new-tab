@@ -5,7 +5,11 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
-## [Unreleased]
+## [0.1.4]
+
+### Added
+
+- Added optional custom colors for SVG tile icons.
 
 ### Changed
 

@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogBlock,
   Divider,
@@ -19,7 +20,9 @@ import {
 } from "react";
 import type { TileType, TileSize } from "~/settings";
 import type { TileFormValue } from "~/types";
+import { getReadableTileTextColor } from "~/utils/color";
 import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
+import { isSvgImageDataUrl } from "~/utils/image";
 import { isValidUrl, normalizeUrl } from "~/utils/url";
 import * as Styles from "~/components/TileOverview/styles";
 import { TILE_ICON_SIZE_RANGE } from "~/settings/constants";
@@ -68,6 +71,7 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
             color: tile.color,
             size: tile.size,
             icon: tile.icon,
+            iconColor: isSvgImageDataUrl(tile.icon) ? tile.iconColor : undefined,
             iconSize: tile.iconSize,
           }
         : EMPTY_TILE_FORM,
@@ -79,6 +83,8 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
     return null;
   }
 
+  const isSvgIcon = isSvgImageDataUrl(form.icon);
+
   async function handleIconChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
 
@@ -87,7 +93,11 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
     }
 
     const icon = await readFileAsDataUrl(file);
-    setForm((current) => ({ ...current, icon }));
+    setForm((current) => ({
+      ...current,
+      icon,
+      iconColor: isSvgImageDataUrl(icon) ? current.iconColor : undefined,
+    }));
   }
 
   async function handleSubmit(event: FormSubmitEvent) {
@@ -129,7 +139,12 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
       modal={false}
       onClose={onClose}
       // To make bottom positioned footer work:
-      style={{ display: "flex", flexDirection: "column", width: "100%" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        zIndex: 9999,
+      }}
     >
       <DialogBlock>
         <ModalHeader
@@ -242,20 +257,67 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
                   </label>
                 </Button>
 
-                {form.icon && <Styles.IconPreview src={form.icon} alt="" />}
+                {form.icon &&
+                  (isSvgIcon && form.iconColor ? (
+                    <Styles.IconPreviewFrame aria-hidden>
+                      <Styles.MaskedIconPreview
+                        $icon={form.icon}
+                        $iconColor={form.iconColor}
+                      />
+                    </Styles.IconPreviewFrame>
+                  ) : (
+                    <Styles.IconPreview src={form.icon} alt="" />
+                  ))}
 
                 {form.icon && (
                   <Button
                     type="button"
                     variant="tertiary"
                     onClick={() =>
-                      setForm((current) => ({ ...current, icon: undefined }))
+                      setForm((current) => ({
+                        ...current,
+                        icon: undefined,
+                        iconColor: undefined,
+                      }))
                     }
                   >
                     Remove icon
                   </Button>
                 )}
               </Styles.FileActions>
+
+              <Styles.IconColorControls>
+                <Checkbox
+                  label="Apply custom color"
+                  description="Only takes effect for SVG icons."
+                  checked={form.iconColor !== undefined}
+                  disabled={!isSvgIcon}
+                  onChange={(event) => {
+                    const checked = event.currentTarget.checked;
+
+                    setForm((current) => ({
+                      ...current,
+                      iconColor: checked
+                        ? getReadableTileTextColor(current.color)
+                        : undefined,
+                    }));
+                  }}
+                />
+
+                <Textfield
+                  label="Icon color"
+                  type="color"
+                  value={
+                    form.iconColor ?? getReadableTileTextColor(form.color)
+                  }
+                  disabled={!isSvgIcon || form.iconColor === undefined}
+                  onChange={(event) => {
+                    const iconColor = event.currentTarget.value;
+
+                    setForm((current) => ({ ...current, iconColor }));
+                  }}
+                />
+              </Styles.IconColorControls>
             </Styles.VerticalStack>
 
             {formError && <ValidationMessage>{formError}</ValidationMessage>}

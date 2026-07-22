@@ -27,6 +27,7 @@ export function migrateTile(value: unknown): TileType | null {
     color: coerceHexColor(value.color, DEFAULT_TILE_COLOR),
     size: coerceTileSize(value.size),
     icon: coerceImageDataUrl(value.icon),
+    iconColor: coerceHexColor(value.iconColor, "") || undefined,
     iconSize: coerceTileIconSize(value.iconSize),
     createdAt:
       typeof value.createdAt === "string"

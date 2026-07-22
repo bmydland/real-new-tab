@@ -5,3 +5,10 @@ export function coerceImageDataUrl(value: unknown): string | undefined {
 
   return value;
 }
+
+export function isSvgImageDataUrl(value: unknown): value is string {
+  return (
+    typeof value === "string" &&
+    value.toLowerCase().startsWith("data:image/svg+xml")
+  );
+}
