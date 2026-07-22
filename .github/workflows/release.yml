@@ -53,6 +53,31 @@ jobs:
           writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
           NODE
 
+      - name: Read changelog entry
+        shell: bash
+        run: |
+          notes_file="$RUNNER_TEMP/release-notes.md"
+
+          if ! awk -v heading="## [$RELEASE_VERSION]" '
+            $0 == heading || index($0, heading " - ") == 1 {
+              found = 1
+              next
+            }
+            found && /^## \[/ { exit }
+            found { print }
+            END { if (!found) exit 1 }
+          ' CHANGELOG.md > "$notes_file"; then
+            echo "CHANGELOG.md has no section for version $RELEASE_VERSION."
+            exit 1
+          fi
+
+          if ! grep -q '[^[:space:]]' "$notes_file"; then
+            echo "The CHANGELOG.md section for version $RELEASE_VERSION is empty."
+            exit 1
+          fi
+
+          echo "RELEASE_NOTES_FILE=$notes_file" >> "$GITHUB_ENV"
+
       - name: Build extension
         run: npm run build
 
@@ -69,5 +94,5 @@ jobs:
         run: |
           gh release create "$GITHUB_REF_NAME" "$RELEASE_ARCHIVE" \
             --verify-tag \
-            --generate-notes \
+            --notes-file "$RELEASE_NOTES_FILE" \
             --title "realNewTab $GITHUB_REF_NAME"

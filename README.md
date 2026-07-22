@@ -2,6 +2,8 @@
 
 A local Chrome new-tab extension built with React, Vite, and Manifest V3.
 
+See [CHANGELOG.md](CHANGELOG.md) for the release history.
+
 ## Usage
 
 Download the latest packaged extension from the [GitHub Releases page](https://github.com/bmydland/realNewTab/releases/latest).
@@ -59,19 +61,26 @@ npm run build
 
 ### Create A Release
 
-GitHub Actions creates a release whenever a version tag beginning with `v` is pushed. Use a numeric Chrome-compatible version such as `v0.1.0`:
+GitHub Actions creates a release whenever a version tag beginning with `v` is pushed. Before tagging, move the relevant entries from `Unreleased` into a dated `CHANGELOG.md` section matching the version, and commit that change:
+
+```markdown
+## [0.1.4] - 2026-07-22
+```
+
+Then create and push the corresponding numeric Chrome-compatible tag:
 
 ```bash
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.1.4
+git push origin v0.1.4
 ```
 
 The release workflow:
 
-1. Installs dependencies with `npm ci`.
-2. Runs lint and builds the extension.
-3. Uses the tag version for `manifest.json` in the packaged build.
-4. Packages the contents of `dist/` as `realNewTab.zip`, with `manifest.json` at the archive root.
-5. Publishes the ZIP on the [GitHub Releases page](https://github.com/bmydland/realNewTab/releases).
+1. Requires a non-empty matching version section in `CHANGELOG.md`.
+2. Installs dependencies with `npm ci`.
+3. Runs lint and builds the extension.
+4. Uses the tag version for `manifest.json` in the packaged build.
+5. Packages the contents of `dist/` as `realNewTab.zip`, with `manifest.json` at the archive root.
+6. Publishes the ZIP and version-specific changelog entry on the [GitHub Releases page](https://github.com/bmydland/realNewTab/releases).
 
 Increment the tag for each release, for example `v0.1.1` and then `v0.2.0`. Release tags must contain one to four numeric components and cannot contain prerelease suffixes.
