@@ -1,0 +1,73 @@
+name: Release extension
+
+on:
+  push:
+    tags:
+      - "v[0-9]*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Read release version
+        shell: bash
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+
+          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,3}$ ]]; then
+            echo "Tag must be a Chrome-compatible version such as v0.1.0."
+            exit 1
+          fi
+
+          echo "RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Set extension version
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from "node:fs";
+
+          const path = "public/manifest.json";
+          const manifest = JSON.parse(readFileSync(path, "utf8"));
+
+          manifest.version = process.env.RELEASE_VERSION;
+          writeFileSync(path, `${JSON.stringify(manifest, null, 2)}\n`);
+          NODE
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Package extension
+        shell: bash
+        run: |
+          archive="realNewTab.zip"
+          (cd dist && zip -r "../$archive" .)
+          echo "RELEASE_ARCHIVE=$archive" >> "$GITHUB_ENV"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$RELEASE_ARCHIVE" \
+            --verify-tag \
+            --generate-notes \
+            --title "realNewTab $GITHUB_REF_NAME"
