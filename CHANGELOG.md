@@ -5,7 +5,13 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
-## [0.1.4]
+## [0.1.5] - 2026-07-23
+
+### Changed
+
+- Size tile icons relative to tile height for consistent sizing across square and wide tiles.
+
+## [0.1.4] - 2026-07-22
 
 ### Added
 
@@ -29,6 +35,8 @@ and this project uses semantic versioning.
 
 - Added automated GitHub release packaging and installation documentation.
 
-[Unreleased]: https://github.com/bmydland/realNewTab/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/bmydland/realNewTab/compare/v0.1.5...HEAD
+[0.1.5]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.5
+[0.1.4]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.4
 [0.1.3]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.3
 [0.1.2]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.2

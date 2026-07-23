@@ -218,7 +218,9 @@ export const TileLink = styled.a`
 `;
 
 export const TileIcon = styled.img<{ $iconSize: number }>`
-  width: ${({ $iconSize }) => `${$iconSize}%`};
+  height: ${({ $iconSize }) => `${$iconSize}%`};
+  width: auto;
+  max-width: 100%;
   max-height: 100%;
   display: block;
   object-fit: contain;
