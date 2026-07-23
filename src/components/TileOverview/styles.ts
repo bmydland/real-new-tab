@@ -14,16 +14,28 @@ export const StyledCloseButton = styled(Button)`
 export const VerticalStack = styled.div`
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-5);
 `;
 
-export const FieldGrid = styled.div`
-  display: grid;
-  grid-template-columns: 1fr minmax(112px, 150px);
+export const HorizontalStack = styled.div`
+  display: flex;
+  width: 100%;
+  align-items: end;
   gap: var(--space-4);
 
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   @media (max-width: 560px) {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
+
+    > * {
+      flex-basis: auto;
+      width: 100%;
+    }
   }
 `;
 
@@ -224,7 +236,6 @@ export const TileIcon = styled.img<{ $iconSize: number }>`
   max-height: 100%;
   display: block;
   object-fit: contain;
-  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.1));
 `;
 
 export const TileIconMask = styled.span<{

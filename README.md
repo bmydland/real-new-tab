@@ -2,8 +2,6 @@
 
 A local Chrome new-tab extension built with React, Vite, and Manifest V3.
 
-See [CHANGELOG.md](CHANGELOG.md) for the release history.
-
 ## Usage
 
 Download the latest packaged extension from the [GitHub Releases page](https://github.com/bmydland/realNewTab/releases/latest).
@@ -16,6 +14,8 @@ Download the latest packaged extension from the [GitHub Releases page](https://g
 6. Select the extracted `realNewTab/` folder. It should contain `manifest.json` directly.
 
 Chrome cannot load the ZIP file directly. Keep the extracted folder after loading the extension; Chrome uses the files from that location.
+
+See [CHANGELOG.md](CHANGELOG.md) for the release history.
 
 ## Development
 

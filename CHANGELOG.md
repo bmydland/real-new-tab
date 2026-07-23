@@ -5,6 +5,19 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
+## [Unreleased]
+
+### Added
+
+- Added a "Match tile color" action for new and existing tiles that matches the tile background to the icon's edge color.
+
+### Changed
+
+- Reorganized the tile configuration controls into a clearer, responsive hierarchy.
+- Show custom icon color controls only for SVG icons.
+- Display tile form errors in an alert.
+- Removed raster icon shadows so matched icon backgrounds blend seamlessly into tiles.
+
 ## [0.1.5] - 2026-07-23
 
 ### Changed
