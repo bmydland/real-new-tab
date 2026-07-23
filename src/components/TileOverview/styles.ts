@@ -229,12 +229,17 @@ export const TileLink = styled.a`
   width: 100%;
 `;
 
-export const TileIcon = styled.img<{ $iconSize: number }>`
+export const TileIcon = styled.img<{
+  $iconSize: number;
+  $tileSize: TileSize;
+}>`
+  display: block;
+  width: ${({ $tileSize, $iconSize }) =>
+    $tileSize === "wide" ? "100%" : `${$iconSize}%`};
   height: ${({ $iconSize }) => `${$iconSize}%`};
-  width: auto;
+  flex: none;
   max-width: 100%;
   max-height: 100%;
-  display: block;
   object-fit: contain;
 `;
 
@@ -242,17 +247,21 @@ export const TileIconMask = styled.span<{
   $icon: string;
   $iconColor: string;
   $iconSize: number;
+  $tileSize: TileSize;
 }>`
-  width: ${({ $iconSize }) => `${$iconSize}%`};
+  display: block;
+  width: ${({ $tileSize, $iconSize }) =>
+    $tileSize === "wide" ? "100%" : `${$iconSize}%`};
   height: ${({ $iconSize }) => `${$iconSize}%`};
+
+  mask-image: url(${({ $icon }) => $icon});
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  background-color: ${({ $iconColor }) => $iconColor};
+  flex: none;
   max-width: 100%;
   max-height: 100%;
-  display: block;
-  flex: none;
-  background-color: ${({ $iconColor }) => $iconColor};
-  -webkit-mask: url(${({ $icon }) => $icon}) center / contain no-repeat;
-  mask: url(${({ $icon }) => $icon}) center / contain no-repeat;
-  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.1));
 `;
 
 export const TileDragHandle = styled.button`

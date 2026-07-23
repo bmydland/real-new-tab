@@ -101,6 +101,7 @@ export function DraggableTile({
               $icon={tileIcon}
               $iconColor={tileIconColor}
               $iconSize={tileIconSize}
+              $tileSize={tileSize}
             />
           ) : (
             <TileComponent.TileIcon
@@ -108,6 +109,7 @@ export function DraggableTile({
               alt=""
               draggable={false}
               $iconSize={tileIconSize}
+              $tileSize={tileSize}
             />
           ))}
       </TileComponent.TileLink>

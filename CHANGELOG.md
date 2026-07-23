@@ -5,7 +5,11 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
-## [Unreleased]
+## [0.1.7] - 2026-07-23
+
+### Changed
+
+- Improved icon scaling consistency: square tiles now scale icons by both width and height, while wide tiles scale icons by height only.
 
 ## [0.1.6] - 2026-07-23
 
