@@ -7,6 +7,8 @@ and this project uses semantic versioning.
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-07-23
+
 ### Added
 
 - Added a "Match tile color" action for new and existing tiles that matches the tile background to the icon's edge color.
@@ -48,8 +50,9 @@ and this project uses semantic versioning.
 
 - Added automated GitHub release packaging and installation documentation.
 
-[Unreleased]: https://github.com/bmydland/realNewTab/compare/v0.1.5...HEAD
-[0.1.5]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.5
-[0.1.4]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.4
-[0.1.3]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.3
-[0.1.2]: https://github.com/bmydland/realNewTab/releases/tag/v0.1.2
+[Unreleased]: https://github.com/bmydland/real-new-tab/compare/v0.1.6...HEAD
+[0.1.6]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.6
+[0.1.5]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.5
+[0.1.4]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.4
+[0.1.3]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.3
+[0.1.2]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.2
