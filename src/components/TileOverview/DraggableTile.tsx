@@ -7,12 +7,12 @@ import { PencilIcon, TrashIcon } from "@navikt/aksel-icons";
 
 const TILE_DND_TYPE = "tile";
 
-type DragTile = {
+interface DragTile {
   id: string;
   index: number;
-};
+}
 
-type Props = {
+interface Props {
   index: number;
   tile: TileType;
   onDelete: (id: string) => void;
@@ -20,7 +20,8 @@ type Props = {
   onDragStart: () => void;
   onEdit: (tile: TileType) => void;
   onMove: (fromIndex: number, toIndex: number) => void;
-};
+  isEditMode: boolean;
+}
 
 export function DraggableTile({
   index,
@@ -30,6 +31,7 @@ export function DraggableTile({
   onDragStart,
   onEdit,
   onMove,
+  isEditMode,
 }: Props) {
   const {
     color: tileColor,
@@ -43,11 +45,11 @@ export function DraggableTile({
   } = tile;
 
   const frameRef = useRef<HTMLElement>(null);
-  const handleRef = useRef<HTMLButtonElement>(null);
 
   const [{ isDragging }, drag] = useDrag(
     () => ({
       type: TILE_DND_TYPE,
+      canDrag: isEditMode,
       item: () => {
         onDragStart();
         return { id: tileId, index };
@@ -57,7 +59,7 @@ export function DraggableTile({
         isDragging: monitor.isDragging(),
       }),
     }),
-    [index, onDragEnd, onDragStart, tileId],
+    [index, isEditMode, onDragEnd, onDragStart, tileId],
   );
 
   const [{ isDropTarget }, drop] = useDrop<
@@ -67,8 +69,9 @@ export function DraggableTile({
   >(
     () => ({
       accept: TILE_DND_TYPE,
+      canDrop: () => isEditMode,
       hover: (item) => {
-        if (item.id === tileId || item.index === index) {
+        if (!isEditMode || item.id === tileId || item.index === index) {
           return;
         }
 
@@ -79,11 +82,11 @@ export function DraggableTile({
         isDropTarget: monitor.isOver({ shallow: true }),
       }),
     }),
-    [index, onMove, tileId],
+    [index, isEditMode, onMove, tileId],
   );
 
-  drag(handleRef);
   drop(frameRef);
+  drag(frameRef);
 
   return (
     <TileComponent.TileElement
@@ -91,9 +94,22 @@ export function DraggableTile({
       $color={tileColor}
       $isDragging={isDragging}
       $isDropTarget={isDropTarget}
+      $isEditMode={isEditMode}
       $size={tileSize}
     >
-      <TileComponent.TileLink href={tileUrl} title={tileLabel}>
+      <TileComponent.TileLink
+        href={tileUrl}
+        title={tileLabel}
+        $isEditMode={isEditMode}
+        aria-disabled={isEditMode || undefined}
+        draggable={false}
+        tabIndex={isEditMode ? -1 : undefined}
+        onClick={(event) => {
+          if (isEditMode) {
+            event.preventDefault();
+          }
+        }}
+      >
         {tileIcon &&
           (tileIconColor && isSvgImageDataUrl(tileIcon) ? (
             <TileComponent.TileIconMask
@@ -114,30 +130,25 @@ export function DraggableTile({
           ))}
       </TileComponent.TileLink>
 
-      <TileComponent.TileDragHandle
-        ref={handleRef}
-        type="button"
-        aria-label={`Drag ${tileLabel}`}
-        title="Drag tile"
-      />
+      {isEditMode && !isDragging && (
+        <TileComponent.TileActionButtonWrapper>
+          <TileComponent.TileActionButton
+            type="button"
+            title="Edit"
+            onClick={() => onEdit(tile)}
+          >
+            <PencilIcon fontSize="2rem" aria-hidden />
+          </TileComponent.TileActionButton>
 
-      <TileComponent.TileActions>
-        <TileComponent.TileActionButton
-          type="button"
-          title="Edit"
-          onClick={() => onEdit(tile)}
-        >
-          <PencilIcon aria-hidden />
-        </TileComponent.TileActionButton>
-
-        <TileComponent.TileActionButton
-          type="button"
-          title="Delete"
-          onClick={() => onDelete(tileId)}
-        >
-          <TrashIcon aria-hidden />
-        </TileComponent.TileActionButton>
-      </TileComponent.TileActions>
+          <TileComponent.TileActionButton
+            type="button"
+            title="Delete"
+            onClick={() => onDelete(tileId)}
+          >
+            <TrashIcon fontSize="2rem" aria-hidden />
+          </TileComponent.TileActionButton>
+        </TileComponent.TileActionButtonWrapper>
+      )}
     </TileComponent.TileElement>
   );
 }

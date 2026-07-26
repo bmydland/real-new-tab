@@ -1,9 +1,7 @@
 import { Button } from "@digdir/designsystemet-react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import type { TileSize } from "~/settings";
 import { getReadableTileTextColor } from "~/utils/color";
-
-const DELAY_BUTTON_REVEAL = "0.75s" as const;
 
 export const StyledCloseButton = styled(Button)`
   float: inline-end;
@@ -181,6 +179,7 @@ export const TileElement = styled.article<{
   $color: string;
   $isDragging?: boolean;
   $isDropTarget?: boolean;
+  $isEditMode: boolean;
   $size: TileSize;
 }>`
   position: relative;
@@ -194,17 +193,27 @@ export const TileElement = styled.article<{
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
   opacity: ${({ $isDragging }) => ($isDragging ? 0.44 : 1)};
   outline: ${({ $isDropTarget }) =>
-    $isDropTarget ? "3px solid rgba(255, 255, 255, 0.72)" : "0"};
-  outline-offset: -3px;
+    $isDropTarget
+      ? "6px solid rgba(255, 255, 255, 0.72)"
+      : "6px solid transparent"};
+  outline-offset: -6px;
   transition:
     opacity 120ms ease,
     outline-color 120ms ease;
 
-  &:hover button,
-  &:focus-within button {
-    opacity: 1;
-    transition-delay: ${DELAY_BUTTON_REVEAL};
-  }
+  ${({ $isEditMode }) =>
+    $isEditMode &&
+    css`
+      cursor: grab;
+
+      &:hover {
+        outline: 6px solid rgba(255, 255, 255, 0.9);
+      }
+
+      &:active {
+        cursor: grabbing;
+      }
+    `}
 
   @media (max-width: 360px) {
     flex: none;
@@ -219,7 +228,7 @@ export const TileElement = styled.article<{
   }
 `;
 
-export const TileLink = styled.a`
+export const TileLink = styled.a<{ $isEditMode: boolean }>`
   display: flex;
   align-items: center;
   text-align: center;
@@ -227,6 +236,7 @@ export const TileLink = styled.a`
   text-decoration: none;
   height: 100%;
   width: 100%;
+  pointer-events: ${({ $isEditMode }) => ($isEditMode ? "none" : "auto")};
 `;
 
 export const TileIcon = styled.img<{
@@ -264,55 +274,26 @@ export const TileIconMask = styled.span<{
   max-height: 100%;
 `;
 
-export const TileDragHandle = styled.button`
+export const TileActionButtonWrapper = styled.div`
   position: absolute;
-  top: 8px;
-  left: 8px;
-  z-index: 3;
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  border-radius: 4px;
-  padding: 0;
-  color: #121918;
-  background: rgba(255, 255, 255, 0.86);
-  cursor: grab;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-
-  &::before {
-    content: "";
-    width: 16px;
-    height: 16px;
-    background-image: radial-gradient(currentColor 1.4px, transparent 1.6px);
-    background-size: 6px 6px;
-  }
-
-  &:active {
-    cursor: grabbing;
-  }
-`;
-
-export const TileActions = styled.div`
-  position: absolute;
-  right: 8px;
-  bottom: 8px;
-  z-index: 2;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  inset: 0;
+  z-index: 2;
   gap: 6px;
+  filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.75));
 `;
 
 export const TileActionButton = styled(Button)`
-  min-height: 28px;
-  min-width: unset;
-  background: rgba(255, 255, 255, 0.85);
+  min-height: 44px;
+  min-width: 44px;
+  flex-shrink: 0;
+  background-color: rgba(255, 255, 255, 0.85);
   color: black;
   padding: 0;
   padding-inline: 3px;
-  opacity: 0;
-  transition: opacity 0.2s ease;
+  z-index: 10;
 `;
 
 export const EmptyState = styled.button`

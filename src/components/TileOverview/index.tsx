@@ -5,14 +5,15 @@ import { EmptyState, TileGrid, TileStage } from "./styles";
 import { DraggableTile } from "~/components/TileOverview/DraggableTile";
 import { hasTileOrderChanged } from "~/components/TileOverview/hasTileOrderChanged";
 
-type TileOverviewProps = {
+interface Props {
   tiles: TileType[];
   rowCount: number;
   onAdd: () => void;
   onDelete: (id: string) => void;
   onEdit: (tile: TileType) => void;
   onReorder: (tiles: TileType[]) => Promise<void>;
-};
+  isEditMode: boolean;
+}
 
 export function TileOverview({
   tiles,
@@ -21,7 +22,8 @@ export function TileOverview({
   onDelete,
   onEdit,
   onReorder,
-}: TileOverviewProps) {
+  isEditMode,
+}: Props) {
   const [orderedTiles, setOrderedTiles] = useState(tiles);
   const orderedTilesRef = useRef(orderedTiles);
   const isDraggingRef = useRef(false);
@@ -91,6 +93,7 @@ export function TileOverview({
               onDragStart={startDrag}
               onEdit={onEdit}
               onMove={moveTile}
+              isEditMode={isEditMode}
             />
           ))}
         </TileGrid>

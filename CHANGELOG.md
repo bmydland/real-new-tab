@@ -5,6 +5,19 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
+## [0.1.8] - 2026-07-26
+
+### Added
+
+- Added an explicit edit mode for managing and reordering tiles.
+
+### Changed
+
+- Made the entire tile draggable in edit mode instead of using a separate drag handle.
+- Show tile actions only in edit mode, hide them while dragging, and use larger centered controls with clearer hover feedback and improved shadows.
+- Keep the toolbar visible while edit mode is active.
+- Moved status notifications to the bottom-left corner.
+
 ## [0.1.7] - 2026-07-23
 
 ### Changed
@@ -54,7 +67,9 @@ and this project uses semantic versioning.
 
 - Added automated GitHub release packaging and installation documentation.
 
-[Unreleased]: https://github.com/bmydland/real-new-tab/compare/v0.1.6...HEAD
+[Unreleased]: https://github.com/bmydland/real-new-tab/compare/v0.1.8...HEAD
+[0.1.8]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.8
+[0.1.7]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.7
 [0.1.6]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.6
 [0.1.5]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.5
 [0.1.4]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.4

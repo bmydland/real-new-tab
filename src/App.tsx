@@ -1,4 +1,3 @@
-import { PlusCircleIcon, WrenchIcon } from "@navikt/aksel-icons";
 import { useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -9,12 +8,13 @@ import {
   TileOverview,
   TileModal,
 } from "~/components";
-import { useStoredSettings } from "~/hooks";
+import { useStoredSettings, useToggle } from "~/hooks";
 import type { TileType } from "~/settings";
 import { createTileId } from "~/settings/createTileId";
 import type { TileFormValue } from "~/types";
-import { StyledMain, Toolbar, ToolbarButton } from "./styles";
+import { StyledMain } from "./styles";
 import "./font/roboto.css";
+import { Toolbar } from "./components/Toolbar";
 
 type TileDialogState =
   | { type: "add" }
@@ -25,6 +25,7 @@ export default function App() {
   const { isLoading, persistSettings, settings, showToast } =
     useStoredSettings();
 
+  const { isOpen: isEditMode, onToggle: toggleEditMode } = useToggle();
   const [dialogState, setDialogState] = useState<TileDialogState>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -97,20 +98,12 @@ export default function App() {
           $backgroundImage={settings.backgroundImage}
           $backgroundPosition={settings.backgroundPosition}
         >
-          <Toolbar aria-label="New tab actions">
-            <ToolbarButton
-              type="button"
-              onClick={() => setDialogState({ type: "add" })}
-            >
-              <PlusCircleIcon aria-hidden />
-              Add tile
-            </ToolbarButton>
-
-            <ToolbarButton type="button" onClick={() => setSettingsOpen(true)}>
-              <WrenchIcon />
-              Settings
-            </ToolbarButton>
-          </Toolbar>
+          <Toolbar
+            $isEditMode={isEditMode}
+            toggleEditMode={toggleEditMode}
+            onAddTile={() => setDialogState({ type: "add" })}
+            onOpenSettings={() => setSettingsOpen(true)}
+          />
 
           <DndProvider backend={HTML5Backend}>
             <TileOverview
@@ -120,6 +113,7 @@ export default function App() {
               onDelete={(id) => deleteTile(id)}
               onEdit={(tile) => setDialogState({ type: "edit", tile })}
               onReorder={reorderTiles}
+              isEditMode={isEditMode}
             />
           </DndProvider>
 
@@ -140,7 +134,7 @@ export default function App() {
         </StyledMain>
       )}
 
-      <Toaster position="bottom-right" />
+      <Toaster position="bottom-left" />
     </>
   );
 }
