@@ -11,6 +11,6 @@ export const TILE_SIZES = [
 export const TILE_ICON_SIZE_RANGE = {
   default: 50,
   min: 20,
-  max: 100,
+  max: 200,
   step: 5,
 } as const;

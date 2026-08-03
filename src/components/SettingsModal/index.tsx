@@ -26,52 +26,27 @@ import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
 import { readFileAsText } from "~/utils/file/readFileAsText";
 import * as Styles from "./styles";
 import { ModalHeader } from "~/components/Modal";
+import { formatBackupTimestamp } from "./utils";
+import { BACKGROUND_POSITION_OPTIONS, GRID_ROW_OPTIONS } from "./settings";
 
 interface Props {
-  open: boolean;
+  isSettingsOpen: boolean;
   settings: AppSettings;
   onClose: () => void;
   onPersist: (settings: AppSettings, message?: string) => Promise<void>;
   onStatus: (message: string, kind?: ToastKind) => void;
+  closeEditModeHandler: () => void;
 }
-
-const GRID_ROW_OPTIONS = [2, 3, 4, 5];
-
-function formatBackupTimestamp(date: Date): string {
-  const twoDigits = (value: number) => String(value).padStart(2, "0");
-  const datePart = [
-    date.getFullYear(),
-    twoDigits(date.getMonth() + 1),
-    twoDigits(date.getDate()),
-  ].join("-");
-  const timePart = [
-    twoDigits(date.getHours()),
-    twoDigits(date.getMinutes()),
-    twoDigits(date.getSeconds()),
-  ].join("-");
-
-  return `${datePart}_${timePart}`;
-}
-
-const BACKGROUND_POSITION_OPTIONS: Array<{
-  label: string;
-  value: BackgroundPosition;
-}> = [
-  { label: "Top", value: "top" },
-  { label: "Left", value: "left" },
-  { label: "Center", value: "center" },
-  { label: "Right", value: "right" },
-  { label: "Bottom", value: "bottom" },
-];
 
 export function SettingsModal({
-  open,
+  isSettingsOpen,
   settings,
   onClose,
   onPersist,
   onStatus,
+  closeEditModeHandler,
 }: Props) {
-  if (!open) {
+  if (!isSettingsOpen) {
     return null;
   }
 
@@ -131,6 +106,11 @@ export function SettingsModal({
     onClose();
   }
 
+  function onCloseHandler() {
+    closeEditModeHandler();
+    onClose();
+  }
+
   async function importSettings(event: ChangeEvent<HTMLInputElement>) {
     const input = event.currentTarget;
     const file = input.files?.[0];
@@ -145,7 +125,7 @@ export function SettingsModal({
         settings,
       );
       await onPersist(imported, "Backup imported!");
-      onClose();
+      onCloseHandler();
     } catch (error) {
       onStatus(
         error instanceof Error ? error.message : "Could not import settings.",
@@ -158,14 +138,14 @@ export function SettingsModal({
 
   return (
     <Dialog
-      open={open}
+      open={isSettingsOpen}
       placement="right"
       closedby="any"
       closeButton={false}
-      onClose={onClose}
+      onClose={onCloseHandler}
     >
       <DialogBlock>
-        <ModalHeader title="Settings" onClick={onClose} />
+        <ModalHeader title="Settings" onClick={onCloseHandler} />
 
         <Styles.SettingsStack>
           <Styles.SettingsSection>

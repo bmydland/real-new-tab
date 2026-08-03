@@ -1,9 +1,16 @@
 import { useRef } from "react";
 import { useDrag, useDrop } from "react-dnd";
-import * as TileComponent from "./styles";
 import type { TileType } from "~/settings";
+import {
+  TileActionButton,
+  TileActionButtonWrapper,
+  TileElement,
+  TileIcon,
+  TileIconMask,
+  TileLink,
+} from "./styles";
 import { isSvgImageDataUrl } from "~/utils/image";
-import { PencilIcon, TrashIcon } from "@navikt/aksel-icons";
+import { PencilIcon } from "@navikt/aksel-icons";
 
 const TILE_DND_TYPE = "tile";
 
@@ -15,7 +22,6 @@ interface DragTile {
 interface Props {
   index: number;
   tile: TileType;
-  onDelete: (id: string) => void;
   onDragEnd: () => void;
   onDragStart: () => void;
   onEdit: (tile: TileType) => void;
@@ -26,7 +32,6 @@ interface Props {
 export function DraggableTile({
   index,
   tile,
-  onDelete,
   onDragEnd,
   onDragStart,
   onEdit,
@@ -89,7 +94,7 @@ export function DraggableTile({
   drag(frameRef);
 
   return (
-    <TileComponent.TileElement
+    <TileElement
       ref={frameRef}
       $color={tileColor}
       $isDragging={isDragging}
@@ -97,7 +102,7 @@ export function DraggableTile({
       $isEditMode={isEditMode}
       $size={tileSize}
     >
-      <TileComponent.TileLink
+      <TileLink
         href={tileUrl}
         title={tileLabel}
         $isEditMode={isEditMode}
@@ -112,43 +117,33 @@ export function DraggableTile({
       >
         {tileIcon &&
           (tileIconColor && isSvgImageDataUrl(tileIcon) ? (
-            <TileComponent.TileIconMask
+            <TileIconMask
               aria-hidden
               $icon={tileIcon}
               $iconColor={tileIconColor}
               $iconSize={tileIconSize}
-              $tileSize={tileSize}
             />
           ) : (
-            <TileComponent.TileIcon
+            <TileIcon
               src={tileIcon}
               alt=""
               draggable={false}
               $iconSize={tileIconSize}
-              $tileSize={tileSize}
             />
           ))}
-      </TileComponent.TileLink>
+      </TileLink>
 
       {isEditMode && !isDragging && (
-        <TileComponent.TileActionButtonWrapper>
-          <TileComponent.TileActionButton
+        <TileActionButtonWrapper>
+          <TileActionButton
             type="button"
             title="Edit"
             onClick={() => onEdit(tile)}
           >
             <PencilIcon fontSize="2rem" aria-hidden />
-          </TileComponent.TileActionButton>
-
-          <TileComponent.TileActionButton
-            type="button"
-            title="Delete"
-            onClick={() => onDelete(tileId)}
-          >
-            <TrashIcon fontSize="2rem" aria-hidden />
-          </TileComponent.TileActionButton>
-        </TileComponent.TileActionButtonWrapper>
+          </TileActionButton>
+        </TileActionButtonWrapper>
       )}
-    </TileComponent.TileElement>
+    </TileElement>
   );
 }

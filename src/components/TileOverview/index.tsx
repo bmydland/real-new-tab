@@ -9,7 +9,6 @@ interface Props {
   tiles: TileType[];
   rowCount: number;
   onAdd: () => void;
-  onDelete: (id: string) => void;
   onEdit: (tile: TileType) => void;
   onReorder: (tiles: TileType[]) => Promise<void>;
   isEditMode: boolean;
@@ -19,7 +18,6 @@ export function TileOverview({
   tiles,
   rowCount,
   onAdd,
-  onDelete,
   onEdit,
   onReorder,
   isEditMode,
@@ -88,7 +86,6 @@ export function TileOverview({
               key={tile.id}
               index={index}
               tile={tile}
-              onDelete={onDelete}
               onDragEnd={() => void endDrag()}
               onDragStart={startDrag}
               onEdit={onEdit}

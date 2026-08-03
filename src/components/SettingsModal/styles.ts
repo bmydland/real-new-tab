@@ -62,7 +62,7 @@ export const SettingsFact = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 24px;
-  border-bottom: 1px solid var(--ds-color-border-subtle);
+  border-bottom: var(--border-width) solid var(--ds-color-border-subtle);
   padding-bottom: 10px;
 
   dt {

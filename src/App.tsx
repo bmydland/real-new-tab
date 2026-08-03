@@ -25,9 +25,19 @@ export default function App() {
   const { isLoading, persistSettings, settings, showToast } =
     useStoredSettings();
 
-  const { isOpen: isEditMode, onToggle: toggleEditMode } = useToggle();
   const [dialogState, setDialogState] = useState<TileDialogState>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const {
+    isOpen: isEditMode,
+    onClose: closeEditMode,
+    onToggle: toggleEditMode,
+  } = useToggle();
+
+  const {
+    isOpen: isSettingsOpen,
+    onOpen: onOpenSettings,
+    onClose: setSettingsClosed,
+  } = useToggle();
 
   async function saveTile(form: TileFormValue) {
     const existingTile =
@@ -88,6 +98,12 @@ export default function App() {
     }
   }
 
+  function closeEditModeHandler() {
+    if (isEditMode) {
+      closeEditMode();
+    }
+  }
+
   return (
     <>
       {isLoading && <PageSpinner />}
@@ -99,10 +115,10 @@ export default function App() {
           $backgroundPosition={settings.backgroundPosition}
         >
           <Toolbar
-            $isEditMode={isEditMode}
+            isEditMode={isEditMode}
             toggleEditMode={toggleEditMode}
             onAddTile={() => setDialogState({ type: "add" })}
-            onOpenSettings={() => setSettingsOpen(true)}
+            onOpenSettings={onOpenSettings}
           />
 
           <DndProvider backend={HTML5Backend}>
@@ -110,7 +126,6 @@ export default function App() {
               tiles={settings.tiles}
               rowCount={settings.gridRows}
               onAdd={() => setDialogState({ type: "add" })}
-              onDelete={(id) => deleteTile(id)}
               onEdit={(tile) => setDialogState({ type: "edit", tile })}
               onReorder={reorderTiles}
               isEditMode={isEditMode}
@@ -118,18 +133,21 @@ export default function App() {
           </DndProvider>
 
           <TileModal
-            open={dialogState !== null}
             tile={dialogState?.type === "edit" ? dialogState.tile : undefined}
+            isTileModalOpen={dialogState !== null}
             onClose={() => setDialogState(null)}
+            onDelete={(id) => deleteTile(id)}
             onSave={saveTile}
+            closeEditModeHandler={closeEditModeHandler}
           />
 
           <SettingsDialog
-            open={settingsOpen}
+            isSettingsOpen={isSettingsOpen}
             settings={settings}
-            onClose={() => setSettingsOpen(false)}
+            onClose={setSettingsClosed}
             onPersist={persistSettings}
             onStatus={showToast}
+            closeEditModeHandler={closeEditModeHandler}
           />
         </StyledMain>
       )}

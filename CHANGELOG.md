@@ -5,6 +5,17 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
+## [0.1.9] - 2026-08-03
+
+### Added
+
+- Added support for tile icon sizes up to 200%.
+
+### Changed
+
+- Improved the clarity and styling of modal and toolbar buttons.
+- Refactored related toolbar and tile UI code.
+
 ## [0.1.8] - 2026-07-26
 
 ### Added
@@ -67,7 +78,8 @@ and this project uses semantic versioning.
 
 - Added automated GitHub release packaging and installation documentation.
 
-[Unreleased]: https://github.com/bmydland/real-new-tab/compare/v0.1.8...HEAD
+[Unreleased]: https://github.com/bmydland/real-new-tab/compare/v0.1.9...HEAD
+[0.1.9]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.9
 [0.1.8]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.8
 [0.1.7]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.7
 [0.1.6]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.6

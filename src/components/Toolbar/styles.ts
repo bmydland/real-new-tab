@@ -2,14 +2,14 @@ import { Button } from "@digdir/designsystemet-react";
 import styled, { css } from "styled-components";
 
 export const StyledHeader = styled.header<{ $isEditMode: boolean }>`
-  position: sticky;
+  position: absolute;
   top: 0;
-  right: 0;
+  padding: var(--tile-gap);
+  width: 100%;
   z-index: 10;
   display: flex;
-  align-self: flex-end;
+  justify-content: end;
   gap: 4px;
-  height: 0;
   opacity: ${({ $isEditMode }) => ($isEditMode ? 1 : 0)};
   transition: opacity 0.5s ease;
   transition-delay: 0.5s;
@@ -20,7 +20,8 @@ export const StyledHeader = styled.header<{ $isEditMode: boolean }>`
   }
 
   @media (max-width: 700px) {
-    height: auto;
+    position: sticky;
+    padding: 0;
   }
 
   @media (max-width: 500px) {
@@ -37,22 +38,40 @@ export const StyledHeader = styled.header<{ $isEditMode: boolean }>`
   }
 `;
 
-export const ToolbarButton = styled(Button)<{ icon?: boolean }>`
-  border: 1px solid rgba(255, 255, 255, 0.22);
+export const ToolbarButton = styled(Button)<{
+  icon?: boolean;
+  $isEditMode?: boolean;
+  $preserveVariant?: boolean;
+}>`
   border-radius: 100px;
-  color: var(--color-light);
-  background-color: rgba(10, 15, 15, 0.62);
-  transition: background-color 0.4s ease;
+  transition: all 0.2s ease;
+  font-weight: 600;
   font-size: 0.82rem;
   backdrop-filter: blur(12px);
+
+  ${({ $isEditMode, $preserveVariant }) =>
+    !$preserveVariant
+      ? css`
+          background-color: ${$isEditMode
+            ? "color-mix(in srgb, var(--color-light) 90%, transparent)"
+            : "rgba(10, 15, 15, 0.6)"};
+          border: 1px solid rgba(255, 255, 255, 0.22);
+          color: ${$isEditMode ? "var(--color-dark)" : "var(--color-light)"};
+
+          &:hover,
+          &:focus-visible {
+            background-color: ${$isEditMode
+              ? "var(--color-light)"
+              : "var(--color-dark)"};
+          }
+        `
+      : css`
+          filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.4));
+        `}
 
   ${({ icon }) =>
     icon &&
     css`
       padding: 0;
     `};
-
-  &:hover {
-    background-color: rgba(10, 15, 15, 0.78);
-  }
 `;
