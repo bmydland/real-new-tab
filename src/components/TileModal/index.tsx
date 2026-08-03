@@ -12,13 +12,8 @@ import {
   Radio,
   Textfield,
 } from "@digdir/designsystemet-react";
-import {
-  useEffect,
-  useState,
-  type ChangeEvent,
-  type ComponentPropsWithoutRef,
-} from "react";
-import type { TileType, TileSize } from "~/settings";
+import { useEffect, useState, type ChangeEvent, type SubmitEvent } from "react";
+import type { TileType } from "~/settings";
 import type { TileFormValue } from "~/types";
 import { getReadableTileTextColor } from "~/utils/color";
 import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
@@ -28,43 +23,39 @@ import { isValidUrl, normalizeUrl } from "~/utils/url";
 import * as Styles from "~/components/TileOverview/styles";
 import { TILE_ICON_SIZE_RANGE } from "~/settings/constants";
 import { ModalHeader, StickyFooter } from "~/components/Modal";
-import { PaletteIcon } from "@navikt/aksel-icons";
+import {
+  FloppydiskIcon,
+  PaletteIcon,
+  TrashIcon,
+  XMarkIcon,
+} from "@navikt/aksel-icons";
+import { EMPTY_TILE_FORM, TILE_SIZE_OPTIONS } from "./settings";
 
-type FormSubmitEvent = Parameters<
-  NonNullable<ComponentPropsWithoutRef<"form">["onSubmit"]>
->[0];
-
-type TileDialogProps = {
-  open: boolean;
+interface Props {
   tile?: TileType;
+  isTileModalOpen: boolean;
   onClose: () => void;
+  onDelete: (id: string) => void;
   onSave: (form: TileFormValue) => Promise<void>;
-};
+  closeEditModeHandler: () => void;
+}
 
-const EMPTY_TILE_FORM: TileFormValue = {
-  url: "",
-  label: "",
-  color: "#000000",
-  size: "normal",
-  iconSize: TILE_ICON_SIZE_RANGE.default,
-};
-
-const TILE_SIZE_OPTIONS: Array<{ value: TileSize; label: string }> = [
-  { value: "normal", label: "Normal" },
-  { value: "wide", label: "Wide" },
-  { value: "large", label: "Large" },
-];
-
-export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
+export function TileModal({
+  tile,
+  isTileModalOpen,
+  onClose,
+  onDelete,
+  onSave,
+  closeEditModeHandler,
+}: Props) {
   const [form, setForm] = useState<TileFormValue>(EMPTY_TILE_FORM);
   const [formError, setFormError] = useState("");
-
   const [isMatchingIconColor, setIsMatchingIconColor] = useState(false);
-
   const [isSaving, setIsSaving] = useState(false);
 
+  // Prefill edit modal with existing data
   useEffect(() => {
-    if (!open) {
+    if (!isTileModalOpen) {
       return;
     }
 
@@ -85,13 +76,19 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
     );
     setFormError("");
     setIsMatchingIconColor(false);
-  }, [open, tile]);
+  }, [isTileModalOpen, tile]);
 
-  if (!open) {
+  if (!isTileModalOpen) {
     return null;
   }
 
   const isSvgIcon = isSvgImageDataUrl(form.icon);
+
+  function closeHandler() {
+    setForm(EMPTY_TILE_FORM);
+    closeEditModeHandler();
+    onClose();
+  }
 
   async function handleIconChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
@@ -139,7 +136,7 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
     }
   }
 
-  async function handleSubmit(event: FormSubmitEvent) {
+  async function handleSubmit(event: SubmitEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const url = normalizeUrl(form.url);
@@ -160,7 +157,7 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
     try {
       await onSave({ ...form, url, label });
       setIsSaving(false);
-      onClose();
+      closeHandler();
     } catch (error) {
       setFormError(
         error instanceof Error ? error.message : "Could not save tile.",
@@ -169,14 +166,16 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
     }
   }
 
+  const isEditing = tile;
+
   return (
     <Dialog
-      open={open}
+      open={isTileModalOpen}
       placement="right"
       closedby="any"
       closeButton={false}
       modal={false}
-      onClose={onClose}
+      onClose={closeHandler}
       style={{
         display: "flex",
         flexDirection: "column",
@@ -186,8 +185,8 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
     >
       <DialogBlock>
         <ModalHeader
-          title={tile ? "Edit tile" : "Add tile"}
-          onClick={onClose}
+          title={isEditing ? "Edit tile" : "Add tile"}
+          onClick={closeHandler}
         />
 
         <form id="tile-form" onSubmit={(e) => handleSubmit(e)}>
@@ -330,17 +329,17 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
                 <Fieldset.Legend>Tile size</Fieldset.Legend>
 
                 <Styles.RadioGrid>
-                  {TILE_SIZE_OPTIONS.map((option) => (
+                  {TILE_SIZE_OPTIONS.map((x) => (
                     <Radio
-                      key={option.value}
-                      label={option.label}
+                      key={x.value}
+                      label={x.label}
                       name="tile-size"
-                      value={option.value}
-                      checked={form.size === option.value}
+                      value={x.value}
+                      checked={form.size === x.value}
                       onChange={() =>
                         setForm((current) => ({
                           ...current,
-                          size: option.value,
+                          size: x.value,
                         }))
                       }
                       variant="outline"
@@ -389,12 +388,27 @@ export function TileModal({ open, tile, onClose, onSave }: TileDialogProps) {
 
       <StickyFooter>
         <Styles.DialogActions>
-          <Button type="button" variant="secondary" onClick={onClose}>
-            Cancel
+          {isEditing && (
+            <Button
+              variant="primary"
+              data-color="danger"
+              // TODO: on successfull delete, close modal (without useEffect)
+              onClick={() => onDelete(tile.id)}
+              style={{ marginRight: "auto" }}
+            >
+              <TrashIcon aria-hidden />
+              Delete tile
+            </Button>
+          )}
+
+          <Button type="button" variant="secondary" onClick={closeHandler}>
+            <XMarkIcon aria-hidden />
+            Close
           </Button>
 
           <Button type="submit" form="tile-form" loading={isSaving}>
-            {tile ? "Save tile" : "Create tile"}
+            <FloppydiskIcon aria-hidden />
+            {isEditing ? "Save tile" : "Create tile"}
           </Button>
         </Styles.DialogActions>
       </StickyFooter>

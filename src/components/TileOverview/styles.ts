@@ -1,6 +1,7 @@
 import { Button } from "@digdir/designsystemet-react";
 import styled, { css } from "styled-components";
 import type { TileSize } from "~/settings";
+import { TILE_ICON_SIZE_RANGE } from "~/settings/constants";
 import { getReadableTileTextColor } from "~/utils/color";
 
 export const StyledCloseButton = styled(Button)`
@@ -88,14 +89,14 @@ export const HiddenFileInput = styled.input`
 export const DialogActions = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: end;
+  /* justify-content: end; */
   gap: var(--space-2);
 `;
 
 export const IconPreview = styled.img`
   width: 38px;
   height: 38px;
-  border: 1px solid var(--ds-color-border-subtle);
+  border: var(--border-width) solid var(--ds-color-border-subtle);
   border-radius: var(--ds-border-radius-sm);
   object-fit: contain;
   background: var(--ds-color-surface-tinted);
@@ -106,7 +107,7 @@ export const IconPreviewFrame = styled.span`
   height: 38px;
   display: grid;
   place-items: center;
-  border: 1px solid var(--ds-color-border-subtle);
+  border: var(--border-width) solid var(--ds-color-border-subtle);
   border-radius: var(--ds-border-radius-sm);
   background: var(--ds-color-surface-tinted);
 `;
@@ -188,18 +189,27 @@ export const TileElement = styled.article<{
   overflow: hidden;
   grid-column: ${({ $size }) => ($size === "normal" ? "span 1" : "span 2")};
   grid-row: ${({ $size }) => ($size === "large" ? "span 2" : "span 1")};
+  background-color: ${({ $color }) => $color};
   color: ${({ $color }) => getReadableTileTextColor($color)};
-  background: ${({ $color }) => $color};
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
   opacity: ${({ $isDragging }) => ($isDragging ? 0.44 : 1)};
-  outline: ${({ $isDropTarget }) =>
-    $isDropTarget
-      ? "6px solid rgba(255, 255, 255, 0.72)"
-      : "6px solid transparent"};
-  outline-offset: -6px;
-  transition:
-    opacity 120ms ease,
-    outline-color 120ms ease;
+  transition: opacity 120ms ease;
+
+  ${({ $isEditMode }) =>
+    !$isEditMode
+      ? css`
+          &:hover {
+            outline: var(--border-width) solid var(--color-light);
+            outline-offset: calc(var(--border-width) * -1);
+          }
+        `
+      : css`
+          outline-offset: -6px;
+
+          &:hover {
+            outline: 6px solid rgba(255, 255, 255, 0.72);
+          }
+        `}
 
   ${({ $isEditMode }) =>
     $isEditMode &&
@@ -241,44 +251,40 @@ export const TileLink = styled.a<{ $isEditMode: boolean }>`
 
 export const TileIcon = styled.img<{
   $iconSize: number;
-  $tileSize: TileSize;
 }>`
   display: block;
-  width: ${({ $tileSize, $iconSize }) =>
-    $tileSize === "wide" ? "100%" : `${$iconSize}%`};
+  width: ${({ $iconSize }) => `${$iconSize}%`};
   height: ${({ $iconSize }) => `${$iconSize}%`};
-  flex: none;
-  max-width: 100%;
-  max-height: 100%;
+  max-width: ${TILE_ICON_SIZE_RANGE.max}%;
+  max-height: ${TILE_ICON_SIZE_RANGE.max}%;
   object-fit: contain;
+  flex: none;
 `;
 
 export const TileIconMask = styled.span<{
   $icon: string;
   $iconColor: string;
   $iconSize: number;
-  $tileSize: TileSize;
 }>`
   display: block;
-  width: ${({ $tileSize, $iconSize }) =>
-    $tileSize === "wide" ? "100%" : `${$iconSize}%`};
+  background-color: ${({ $iconColor }) => $iconColor};
+  width: ${({ $iconSize }) => `${$iconSize}%`};
   height: ${({ $iconSize }) => `${$iconSize}%`};
-
+  max-width: ${TILE_ICON_SIZE_RANGE.max}%;
+  max-height: ${TILE_ICON_SIZE_RANGE.max}%;
   mask-image: url(${({ $icon }) => $icon});
   mask-repeat: no-repeat;
   mask-position: center;
   mask-size: contain;
-  background-color: ${({ $iconColor }) => $iconColor};
   flex: none;
-  max-width: 100%;
-  max-height: 100%;
 `;
 
 export const TileActionButtonWrapper = styled.div`
   position: absolute;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: end;
+  justify-content: end;
+  padding: var(--space-3);
   inset: 0;
   z-index: 2;
   gap: 6px;
@@ -286,13 +292,13 @@ export const TileActionButtonWrapper = styled.div`
 `;
 
 export const TileActionButton = styled(Button)`
-  min-height: 44px;
-  min-width: 44px;
+  min-height: var(--btn-size);
+  min-width: var(--btn-size);
   flex-shrink: 0;
   background-color: rgba(255, 255, 255, 0.85);
   color: black;
   padding: 0;
-  padding-inline: 3px;
+  padding-inline: var(--space-1);
   z-index: 10;
 `;
 

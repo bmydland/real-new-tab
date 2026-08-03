@@ -1,33 +1,56 @@
-import { PencilIcon, PlusCircleIcon, WrenchIcon } from "@navikt/aksel-icons";
+import {
+  BucketMopIcon,
+  CogIcon,
+  PencilIcon,
+  PlusCircleIcon,
+} from "@navikt/aksel-icons";
 import { StyledHeader, ToolbarButton } from "./styles";
 
 interface Props {
-  $isEditMode: boolean;
+  isEditMode: boolean;
   toggleEditMode: () => void;
   onAddTile: () => void;
   onOpenSettings: () => void;
 }
 
 export function Toolbar({
-  $isEditMode,
+  isEditMode,
   toggleEditMode,
   onAddTile,
   onOpenSettings,
 }: Props) {
   return (
-    <StyledHeader $isEditMode={$isEditMode} aria-label="New tab actions">
-      <ToolbarButton type="button" onClick={toggleEditMode}>
-        <PencilIcon aria-hidden />
-        Edit mode
-      </ToolbarButton>
-
-      <ToolbarButton type="button" onClick={onAddTile}>
+    <StyledHeader $isEditMode={isEditMode}>
+      <ToolbarButton
+        variant="primary"
+        $preserveVariant
+        type="button"
+        onClick={onAddTile}
+      >
         <PlusCircleIcon aria-hidden />
         Add tile
       </ToolbarButton>
 
+      <ToolbarButton
+        type="button"
+        onClick={toggleEditMode}
+        $isEditMode={isEditMode}
+      >
+        {isEditMode ? (
+          <>
+            <BucketMopIcon aria-hidden />
+            Exit edit mode
+          </>
+        ) : (
+          <>
+            <PencilIcon aria-hidden />
+            Edit mode
+          </>
+        )}
+      </ToolbarButton>
+
       <ToolbarButton type="button" onClick={onOpenSettings}>
-        <WrenchIcon />
+        <CogIcon aria-hidden />
         Settings
       </ToolbarButton>
     </StyledHeader>
