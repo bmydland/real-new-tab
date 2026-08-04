@@ -84,6 +84,9 @@ export default function App() {
       },
       "Tile deleted",
     );
+
+    setDialogState(null);
+    closeEditMode();
   }
 
   async function reorderTiles(tiles: TileType[]) {

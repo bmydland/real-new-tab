@@ -89,7 +89,7 @@ export const HiddenFileInput = styled.input`
 export const DialogActions = styled.div`
   display: flex;
   flex-wrap: wrap;
-  /* justify-content: end; */
+  justify-content: end;
   gap: var(--space-2);
 `;
 

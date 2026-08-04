@@ -186,7 +186,7 @@ export function TileModal({
       <DialogBlock>
         <ModalHeader
           title={isEditing ? "Edit tile" : "Add tile"}
-          onClick={closeHandler}
+          onClose={closeHandler}
         />
 
         <form id="tile-form" onSubmit={(e) => handleSubmit(e)}>
@@ -392,8 +392,7 @@ export function TileModal({
             <Button
               variant="primary"
               data-color="danger"
-              // TODO: on successfull delete, close modal (without useEffect)
-              onClick={() => onDelete(tile.id)}
+              onClick={() => void onDelete(tile.id)}
               style={{ marginRight: "auto" }}
             >
               <TrashIcon aria-hidden />

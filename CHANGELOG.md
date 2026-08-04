@@ -5,6 +5,12 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
+## [0.1.10] - 2026-08-04
+
+### Fixed
+
+- Automatically close edit modal when deleting tile
+
 ## [0.1.9] - 2026-08-03
 
 ### Added
@@ -78,7 +84,7 @@ and this project uses semantic versioning.
 
 - Added automated GitHub release packaging and installation documentation.
 
-[Unreleased]: https://github.com/bmydland/real-new-tab/compare/v0.1.9...HEAD
+[0.1.10]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.10
 [0.1.9]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.9
 [0.1.8]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.8
 [0.1.7]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.7

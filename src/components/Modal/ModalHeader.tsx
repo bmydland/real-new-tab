@@ -4,13 +4,13 @@ import type { ReactNode } from "react";
 
 interface Props {
   title: string | ReactNode;
-  onClick?: () => void;
+  onClose?: () => void;
 }
 
 // This function is made for nesting Close button and Title in same div
 // so close button don't break the layout when dealing with sticky footers
 // TODO: Remove this when hopefully Digdir supports this in the future
-export function ModalHeader({ title, onClick }: Props) {
+export function ModalHeader({ title, onClose }: Props) {
   return (
     <div>
       <Button
@@ -19,7 +19,7 @@ export function ModalHeader({ title, onClick }: Props) {
         variant="tertiary"
         data-color="neutral"
         aria-label="Close dialog"
-        onClick={onClick}
+        onClick={onClose}
         style={{ float: "inline-end" }}
       >
         <XMarkIcon aria-hidden />
