@@ -5,10 +5,8 @@ import {
   Dialog,
   DialogBlock,
   Divider,
-  Field,
   Fieldset,
   Heading,
-  Label,
   Radio,
   Textfield,
 } from "@digdir/designsystemet-react";
@@ -20,9 +18,10 @@ import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
 import { getDominantImageEdgeColor, isSvgImageDataUrl } from "~/utils/image";
 import { showToast } from "~/utils/toast";
 import { isValidUrl, normalizeUrl } from "~/utils/url";
-import * as Styles from "~/components/TileOverview/styles";
 import { TILE_ICON_SIZE_RANGE } from "~/settings/constants";
 import { ModalHeader, StickyFooter } from "~/components/Modal";
+import { RangeField } from "~/components/RangeField";
+import { SrOnly } from "~/components/SrOnly";
 import {
   FloppydiskIcon,
   PaletteIcon,
@@ -30,6 +29,17 @@ import {
   XMarkIcon,
 } from "@navikt/aksel-icons";
 import { EMPTY_TILE_FORM, TILE_SIZE_OPTIONS } from "./settings";
+import {
+  DialogActions,
+  FileActions,
+  HorizontalStack,
+  IconColorControls,
+  IconPreview,
+  IconPreviewFrame,
+  MaskedIconPreview,
+  RadioGrid,
+  VerticalStack,
+} from "./styles";
 
 interface Props {
   tile?: TileType;
@@ -190,7 +200,7 @@ export function TileModal({
         />
 
         <form id="tile-form" onSubmit={(e) => handleSubmit(e)}>
-          <Styles.VerticalStack>
+          <VerticalStack>
             <Textfield
               autoFocus
               label="Link"
@@ -219,15 +229,15 @@ export function TileModal({
               Tile configuration
             </Heading>
 
-            <Styles.VerticalStack>
+            <VerticalStack>
               <Fieldset>
                 <Fieldset.Legend>Icon</Fieldset.Legend>
 
-                <Styles.FileActions>
+                <FileActions>
                   <Button asChild variant="secondary">
                     <label>
                       Choose icon
-                      <Styles.HiddenFileInput
+                      <SrOnly
                         type="file"
                         accept="image/*"
                         onChange={(event) => void handleIconChange(event)}
@@ -237,14 +247,14 @@ export function TileModal({
 
                   {form.icon &&
                     (isSvgIcon && form.iconColor ? (
-                      <Styles.IconPreviewFrame aria-hidden>
-                        <Styles.MaskedIconPreview
+                      <IconPreviewFrame aria-hidden>
+                        <MaskedIconPreview
                           $icon={form.icon}
                           $iconColor={form.iconColor}
                         />
-                      </Styles.IconPreviewFrame>
+                      </IconPreviewFrame>
                     ) : (
-                      <Styles.IconPreview src={form.icon} alt="" />
+                      <IconPreview src={form.icon} alt="" />
                     ))}
 
                   {form.icon && (
@@ -262,10 +272,10 @@ export function TileModal({
                       Remove icon
                     </Button>
                   )}
-                </Styles.FileActions>
+                </FileActions>
 
                 {isSvgIcon && (
-                  <Styles.IconColorControls>
+                  <IconColorControls>
                     <Checkbox
                       label="Apply custom color"
                       checked={form.iconColor !== undefined}
@@ -294,41 +304,35 @@ export function TileModal({
                         setForm((current) => ({ ...current, iconColor }));
                       }}
                     />
-                  </Styles.IconColorControls>
+                  </IconColorControls>
                 )}
               </Fieldset>
 
-              <Field>
-                <Styles.RangeLabel>
-                  <Label htmlFor="tile-icon-size">Icon size</Label>
-                  <span aria-hidden="true">{form.iconSize}%</span>
-                </Styles.RangeLabel>
+              <RangeField
+                id="tile-icon-size"
+                label="Icon size"
+                valueText={`${form.iconSize}%`}
+                min={TILE_ICON_SIZE_RANGE.min}
+                max={TILE_ICON_SIZE_RANGE.max}
+                step={TILE_ICON_SIZE_RANGE.step}
+                value={form.iconSize}
+                aria-valuetext={`${form.iconSize}%`}
+                onChange={(event) => {
+                  const iconSize = event.currentTarget.valueAsNumber;
 
-                <Styles.RangeInput
-                  id="tile-icon-size"
-                  type="range"
-                  min={TILE_ICON_SIZE_RANGE.min}
-                  max={TILE_ICON_SIZE_RANGE.max}
-                  step={TILE_ICON_SIZE_RANGE.step}
-                  value={form.iconSize}
-                  aria-valuetext={`${form.iconSize}%`}
-                  onChange={(event) => {
-                    const iconSize = event.currentTarget.valueAsNumber;
-
-                    setForm((current) => ({
-                      ...current,
-                      iconSize,
-                    }));
-                  }}
-                />
-              </Field>
+                  setForm((current) => ({
+                    ...current,
+                    iconSize,
+                  }));
+                }}
+              />
 
               <Divider />
 
               <Fieldset>
                 <Fieldset.Legend>Tile size</Fieldset.Legend>
 
-                <Styles.RadioGrid>
+                <RadioGrid>
                   {TILE_SIZE_OPTIONS.map((x) => (
                     <Radio
                       key={x.value}
@@ -345,12 +349,12 @@ export function TileModal({
                       variant="outline"
                     />
                   ))}
-                </Styles.RadioGrid>
+                </RadioGrid>
               </Fieldset>
 
               <Divider />
 
-              <Styles.HorizontalStack>
+              <HorizontalStack>
                 <Textfield
                   label="Tile color"
                   type="color"
@@ -374,20 +378,20 @@ export function TileModal({
                     Match Tile color
                   </Button>
                 )}
-              </Styles.HorizontalStack>
-            </Styles.VerticalStack>
+              </HorizontalStack>
+            </VerticalStack>
 
             {formError && (
               <Alert data-color="danger" role="alert">
                 {formError}
               </Alert>
             )}
-          </Styles.VerticalStack>
+          </VerticalStack>
         </form>
       </DialogBlock>
 
       <StickyFooter>
-        <Styles.DialogActions>
+        <DialogActions>
           {isEditing && (
             <Button
               variant="primary"
@@ -409,7 +413,7 @@ export function TileModal({
             <FloppydiskIcon aria-hidden />
             {isEditing ? "Save tile" : "Create tile"}
           </Button>
-        </Styles.DialogActions>
+        </DialogActions>
       </StickyFooter>
     </Dialog>
   );

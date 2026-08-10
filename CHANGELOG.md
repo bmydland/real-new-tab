@@ -5,6 +5,17 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
+## [0.1.11] - 2026-08-10
+
+### Added
+
+- Added a tile-size adjustment setting for tuning the layout across different screens and machines.
+
+### Changed
+
+- Kept tile-size adjustments smooth by separating the live CSS preview from debounced settings persistence.
+- Reorganized shared and feature-specific styles into reusable, colocated components.
+
 ## [0.1.10] - 2026-08-04
 
 ### Fixed
@@ -84,6 +95,7 @@ and this project uses semantic versioning.
 
 - Added automated GitHub release packaging and installation documentation.
 
+[0.1.11]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.11
 [0.1.10]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.10
 [0.1.9]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.9
 [0.1.8]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.8

@@ -1,4 +1,4 @@
-import type { ChangeEvent } from "react";
+import { useEffect, useRef, useState, type ChangeEvent } from "react";
 import {
   FileExportIcon,
   FileImportIcon,
@@ -24,16 +24,22 @@ import {
 import type { ToastKind } from "~/utils/toast";
 import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
 import { readFileAsText } from "~/utils/file/readFileAsText";
-import * as Styles from "./styles";
 import { ModalHeader } from "~/components/Modal";
+import { RangeField } from "~/components/RangeField";
+import { SrOnly } from "~/components/SrOnly";
+import { TILE_SIZE_SCALE_RANGE } from "~/settings/constants";
 import { formatBackupTimestamp } from "./utils";
 import { BACKGROUND_POSITION_OPTIONS, GRID_ROW_OPTIONS } from "./settings";
+import { SettingsActions, SettingsSection, SettingsStack } from "./styles";
+
+const TILE_SIZE_SAVE_DELAY_MS = 300;
 
 interface Props {
   isSettingsOpen: boolean;
   settings: AppSettings;
   onClose: () => void;
   onPersist: (settings: AppSettings, message?: string) => Promise<void>;
+  onTileSizeScalePreview: (tileSizeScale: number) => void;
   onStatus: (message: string, kind?: ToastKind) => void;
   closeEditModeHandler: () => void;
 }
@@ -43,11 +49,71 @@ export function SettingsModal({
   settings,
   onClose,
   onPersist,
+  onTileSizeScalePreview,
   onStatus,
   closeEditModeHandler,
 }: Props) {
+  const [tileSizeScale, setTileSizeScale] = useState(settings.tileSizeScale);
+  const latestSettingsRef = useRef(settings);
+  const pendingTileSizeScaleRef = useRef<number | null>(null);
+  const tileSizeSaveTimerRef = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    latestSettingsRef.current = settings;
+  }, [settings]);
+
+  useEffect(() => {
+    setTileSizeScale(settings.tileSizeScale);
+  }, [settings.tileSizeScale]);
+
+  useEffect(
+    () => () => {
+      if (tileSizeSaveTimerRef.current !== undefined) {
+        window.clearTimeout(tileSizeSaveTimerRef.current);
+      }
+    },
+    [],
+  );
+
   if (!isSettingsOpen) {
     return null;
+  }
+
+  function clearTileSizeSaveTimer() {
+    if (tileSizeSaveTimerRef.current !== undefined) {
+      window.clearTimeout(tileSizeSaveTimerRef.current);
+      tileSizeSaveTimerRef.current = undefined;
+    }
+  }
+
+  function persistPendingTileSizeScale() {
+    clearTileSizeSaveTimer();
+
+    const tileSizeScale = pendingTileSizeScaleRef.current;
+
+    if (tileSizeScale === null) {
+      return;
+    }
+
+    pendingTileSizeScaleRef.current = null;
+
+    const next = {
+      ...latestSettingsRef.current,
+      tileSizeScale,
+    };
+
+    latestSettingsRef.current = next;
+    void onPersist(next).catch((error: unknown) => {
+      onStatus(
+        error instanceof Error ? error.message : "Could not save tile size.",
+        "error",
+      );
+    });
+  }
+
+  function cancelPendingTileSizeScale() {
+    clearTileSizeSaveTimer();
+    pendingTileSizeScaleRef.current = null;
   }
 
   async function handleBackgroundChange(event: ChangeEvent<HTMLInputElement>) {
@@ -89,8 +155,25 @@ export function SettingsModal({
     await onPersist({ ...settings, gridRows }, "Grid layout saved.");
   }
 
+  function changeTileSizeScale(event: ChangeEvent<HTMLInputElement>) {
+    const tileSizeScale = event.currentTarget.valueAsNumber;
+
+    setTileSizeScale(tileSizeScale);
+    pendingTileSizeScaleRef.current = tileSizeScale;
+    onTileSizeScalePreview(tileSizeScale);
+
+    clearTileSizeSaveTimer();
+
+    tileSizeSaveTimerRef.current = window.setTimeout(
+      persistPendingTileSizeScale,
+      TILE_SIZE_SAVE_DELAY_MS,
+    );
+  }
+
   function exportSettingsHandler() {
-    const payload = createSettingsExport(settings);
+    persistPendingTileSizeScale();
+
+    const payload = createSettingsExport(latestSettingsRef.current);
     const blob = new Blob([JSON.stringify(payload, null, 2)], {
       type: "application/json;charset=utf-8",
     });
@@ -107,6 +190,7 @@ export function SettingsModal({
   }
 
   function onCloseHandler() {
+    persistPendingTileSizeScale();
     closeEditModeHandler();
     onClose();
   }
@@ -124,6 +208,8 @@ export function SettingsModal({
         await readFileAsText(file),
         settings,
       );
+      cancelPendingTileSizeScale();
+      onTileSizeScalePreview(imported.tileSizeScale);
       await onPersist(imported, "Backup imported!");
       onCloseHandler();
     } catch (error) {
@@ -147,8 +233,8 @@ export function SettingsModal({
       <DialogBlock>
         <ModalHeader title="Settings" onClose={onCloseHandler} />
 
-        <Styles.SettingsStack>
-          <Styles.SettingsSection>
+        <SettingsStack>
+          <SettingsSection>
             <Heading level={2} data-size="xs">
               Tile layout
             </Heading>
@@ -169,21 +255,45 @@ export function SettingsModal({
                 ))}
               </Select>
             </Field>
-          </Styles.SettingsSection>
+          </SettingsSection>
 
           <Divider />
 
-          <Styles.SettingsSection>
+          <SettingsSection>
+            <Heading level={2} data-size="xs">
+              Tile scaler
+            </Heading>
+
+            <RangeField
+              id="tile-size-scale"
+              label="Tile size adjustment"
+              valueText={`${tileSizeScale > 0 ? "+" : ""}${tileSizeScale}%`}
+              min={TILE_SIZE_SCALE_RANGE.min}
+              max={TILE_SIZE_SCALE_RANGE.max}
+              step={TILE_SIZE_SCALE_RANGE.step}
+              value={tileSizeScale}
+              aria-valuetext={`${tileSizeScale}%`}
+              onChange={changeTileSizeScale}
+              onPointerUp={persistPendingTileSizeScale}
+              onPointerCancel={persistPendingTileSizeScale}
+              onKeyUp={persistPendingTileSizeScale}
+              onBlur={persistPendingTileSizeScale}
+            />
+          </SettingsSection>
+
+          <Divider />
+
+          <SettingsSection>
             <Heading level={2} data-size="xs">
               Background image
             </Heading>
 
-            <Styles.SettingsActions>
+            <SettingsActions>
               <Button asChild variant="primary">
                 <label>
                   <UploadIcon aria-hidden />
                   Upload image
-                  <Styles.HiddenFileInput
+                  <SrOnly
                     type="file"
                     accept="image/*"
                     onChange={(event) => void handleBackgroundChange(event)}
@@ -199,9 +309,9 @@ export function SettingsModal({
                 <TrashIcon aria-hidden />
                 Remove image
               </Button>
-            </Styles.SettingsActions>
+            </SettingsActions>
 
-            <Field>
+            <Field style={{ marginTop: 10 }}>
               <Label htmlFor="background-position">Background position</Label>
 
               <Select
@@ -217,11 +327,11 @@ export function SettingsModal({
                 ))}
               </Select>
             </Field>
-          </Styles.SettingsSection>
+          </SettingsSection>
 
           <Divider />
 
-          <Styles.SettingsSection>
+          <SettingsSection>
             <Heading level={2} data-size="xs">
               Backup and restore
             </Heading>
@@ -232,7 +342,7 @@ export function SettingsModal({
               and import it to restore your setup on another computer.
             </p>
 
-            <Styles.SettingsActions>
+            <SettingsActions>
               <Button type="button" onClick={exportSettingsHandler}>
                 <FileExportIcon aria-hidden />
                 Export full backup
@@ -242,16 +352,16 @@ export function SettingsModal({
                 <label>
                   <FileImportIcon aria-hidden />
                   Import backup
-                  <Styles.HiddenFileInput
+                  <SrOnly
                     type="file"
                     accept="application/json,.json"
                     onChange={(event) => void importSettings(event)}
                   />
                 </label>
               </Button>
-            </Styles.SettingsActions>
-          </Styles.SettingsSection>
-        </Styles.SettingsStack>
+            </SettingsActions>
+          </SettingsSection>
+        </SettingsStack>
       </DialogBlock>
     </Dialog>
   );

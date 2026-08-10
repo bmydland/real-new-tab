@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Toaster } from "react-hot-toast";
@@ -12,7 +12,7 @@ import { useStoredSettings, useToggle } from "~/hooks";
 import type { TileType } from "~/settings";
 import { createTileId } from "~/settings/createTileId";
 import type { TileFormValue } from "~/types";
-import { StyledMain } from "./styles";
+import { StyledMain } from "./App.styles";
 import "./font/roboto.css";
 import { Toolbar } from "./components/Toolbar";
 
@@ -21,11 +21,18 @@ type TileDialogState =
   | { type: "edit"; tile: TileType }
   | null;
 
+function getTileSizeScaler(tileSizeScale: number) {
+  return 1 + tileSizeScale / 100;
+}
+
 export default function App() {
   const { isLoading, persistSettings, settings, showToast } =
     useStoredSettings();
 
   const [dialogState, setDialogState] = useState<TileDialogState>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const tileScalePreviewFrameRef = useRef<number | null>(null);
+  const pendingTileSizeScaleRef = useRef(settings.tileSizeScale);
 
   const {
     isOpen: isEditMode,
@@ -107,15 +114,37 @@ export default function App() {
     }
   }
 
+  function previewTileSizeScale(tileSizeScale: number) {
+    pendingTileSizeScaleRef.current = tileSizeScale;
+
+    if (tileScalePreviewFrameRef.current !== null) {
+      return;
+    }
+
+    tileScalePreviewFrameRef.current = window.requestAnimationFrame(() => {
+      mainRef.current?.style.setProperty(
+        "--tile-size",
+        `calc(var(--tile-base-size) * ${getTileSizeScaler(
+          pendingTileSizeScaleRef.current,
+        )})`,
+      );
+      tileScalePreviewFrameRef.current = null;
+    });
+  }
+
+  const tileSizeScaler = getTileSizeScaler(settings.tileSizeScale);
+
   return (
     <>
       {isLoading && <PageSpinner />}
 
       {!isLoading && (
         <StyledMain
+          ref={mainRef}
           $backgroundColor={settings.backgroundColor}
           $backgroundImage={settings.backgroundImage}
           $backgroundPosition={settings.backgroundPosition}
+          $tileSizeScaler={tileSizeScaler}
         >
           <Toolbar
             isEditMode={isEditMode}
@@ -149,6 +178,7 @@ export default function App() {
             settings={settings}
             onClose={setSettingsClosed}
             onPersist={persistSettings}
+            onTileSizeScalePreview={previewTileSizeScale}
             onStatus={showToast}
             closeEditModeHandler={closeEditModeHandler}
           />

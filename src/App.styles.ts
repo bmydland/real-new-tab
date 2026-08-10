@@ -5,7 +5,12 @@ export const StyledMain = styled.main<{
   $backgroundColor: string;
   $backgroundImage?: string;
   $backgroundPosition: BackgroundPosition;
+  $tileSizeScaler: number;
 }>`
+  --tile-size: calc(
+    var(--tile-base-size) * ${({ $tileSizeScaler }) => $tileSizeScaler}
+  );
+
   min-height: 100dvh;
   padding-block: 15px;
   padding-inline: var(--tile-gap);

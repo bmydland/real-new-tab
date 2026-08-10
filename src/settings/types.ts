@@ -20,6 +20,7 @@ export type AppSettings = {
   backgroundImage?: string;
   backgroundPosition: BackgroundPosition;
   gridRows: number;
+  tileSizeScale: number;
   tiles: TileType[];
 };
 
