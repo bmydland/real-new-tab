@@ -12,7 +12,7 @@ import { useStoredSettings, useToggle } from "~/hooks";
 import type { TileType } from "~/settings";
 import { createTileId } from "~/settings/createTileId";
 import type { TileFormValue } from "~/types";
-import { StyledMain } from "./App.styles";
+import { StyledMain } from "./styles";
 import "./font/roboto.css";
 import { Toolbar } from "./components/Toolbar";
 
@@ -34,11 +34,7 @@ export default function App() {
   const tileScalePreviewFrameRef = useRef<number | null>(null);
   const pendingTileSizeScaleRef = useRef(settings.tileSizeScale);
 
-  const {
-    isOpen: isEditMode,
-    onClose: closeEditMode,
-    onToggle: toggleEditMode,
-  } = useToggle();
+  const { isOpen: isEditMode, onToggle: toggleEditMode } = useToggle();
 
   const {
     isOpen: isSettingsOpen,
@@ -93,7 +89,6 @@ export default function App() {
     );
 
     setDialogState(null);
-    closeEditMode();
   }
 
   async function reorderTiles(tiles: TileType[]) {
@@ -105,12 +100,6 @@ export default function App() {
         "error",
       );
       throw error;
-    }
-  }
-
-  function closeEditModeHandler() {
-    if (isEditMode) {
-      closeEditMode();
     }
   }
 
@@ -170,7 +159,6 @@ export default function App() {
             onClose={() => setDialogState(null)}
             onDelete={(id) => deleteTile(id)}
             onSave={saveTile}
-            closeEditModeHandler={closeEditModeHandler}
           />
 
           <SettingsDialog
@@ -180,7 +168,6 @@ export default function App() {
             onPersist={persistSettings}
             onTileSizeScalePreview={previewTileSizeScale}
             onStatus={showToast}
-            closeEditModeHandler={closeEditModeHandler}
           />
         </StyledMain>
       )}
