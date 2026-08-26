@@ -70,7 +70,6 @@ export const IconColorControls = styled.div`
 export const DialogActions = styled.div`
   display: flex;
   flex-wrap: wrap;
-  justify-content: end;
   gap: var(--space-2);
 `;
 

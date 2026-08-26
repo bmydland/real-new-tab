@@ -22,12 +22,7 @@ import { TILE_ICON_SIZE_RANGE } from "~/settings/constants";
 import { ModalHeader, StickyFooter } from "~/components/Modal";
 import { RangeField } from "~/components/RangeField";
 import { SrOnly } from "~/components/SrOnly";
-import {
-  FloppydiskIcon,
-  PaletteIcon,
-  TrashIcon,
-  XMarkIcon,
-} from "@navikt/aksel-icons";
+import { FloppydiskIcon, PaletteIcon, TrashIcon } from "@navikt/aksel-icons";
 import { EMPTY_TILE_FORM, TILE_SIZE_OPTIONS } from "./settings";
 import {
   DialogActions,
@@ -47,7 +42,6 @@ interface Props {
   onClose: () => void;
   onDelete: (id: string) => void;
   onSave: (form: TileFormValue) => Promise<void>;
-  closeEditModeHandler: () => void;
 }
 
 export function TileModal({
@@ -56,7 +50,6 @@ export function TileModal({
   onClose,
   onDelete,
   onSave,
-  closeEditModeHandler,
 }: Props) {
   const [form, setForm] = useState<TileFormValue>(EMPTY_TILE_FORM);
   const [formError, setFormError] = useState("");
@@ -96,7 +89,7 @@ export function TileModal({
 
   function closeHandler() {
     setForm(EMPTY_TILE_FORM);
-    closeEditModeHandler();
+
     onClose();
   }
 
@@ -392,26 +385,25 @@ export function TileModal({
 
       <StickyFooter>
         <DialogActions>
+          <Button type="submit" form="tile-form" loading={isSaving}>
+            <FloppydiskIcon aria-hidden />
+            {isEditing ? "Save tile" : "Create tile"}
+          </Button>
+
           {isEditing && (
             <Button
-              variant="primary"
+              variant="secondary"
               data-color="danger"
               onClick={() => void onDelete(tile.id)}
-              style={{ marginRight: "auto" }}
+              // style={{ marginRight: "auto" }}
             >
               <TrashIcon aria-hidden />
               Delete tile
             </Button>
           )}
 
-          <Button type="button" variant="secondary" onClick={closeHandler}>
-            <XMarkIcon aria-hidden />
+          <Button type="button" variant="tertiary" onClick={closeHandler}>
             Close
-          </Button>
-
-          <Button type="submit" form="tile-form" loading={isSaving}>
-            <FloppydiskIcon aria-hidden />
-            {isEditing ? "Save tile" : "Create tile"}
           </Button>
         </DialogActions>
       </StickyFooter>

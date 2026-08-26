@@ -41,7 +41,6 @@ interface Props {
   onPersist: (settings: AppSettings, message?: string) => Promise<void>;
   onTileSizeScalePreview: (tileSizeScale: number) => void;
   onStatus: (message: string, kind?: ToastKind) => void;
-  closeEditModeHandler: () => void;
 }
 
 export function SettingsModal({
@@ -51,7 +50,6 @@ export function SettingsModal({
   onPersist,
   onTileSizeScalePreview,
   onStatus,
-  closeEditModeHandler,
 }: Props) {
   const [tileSizeScale, setTileSizeScale] = useState(settings.tileSizeScale);
   const latestSettingsRef = useRef(settings);
@@ -191,7 +189,6 @@ export function SettingsModal({
 
   function onCloseHandler() {
     persistPendingTileSizeScale();
-    closeEditModeHandler();
     onClose();
   }
 
