@@ -4,7 +4,13 @@ import { isRecord } from "~/utils/isRecord";
 import { DEFAULT_SETTINGS } from "./defaultSettings";
 import { TILE_SIZE_SCALE_RANGE } from "./constants";
 import { migrateTile } from "./migrateTile";
-import type { AppSettings, BackgroundPosition, TileType } from "./types";
+import { normalizeToolbarRevealKey } from "./toolbarRevealKey";
+import type {
+  AppSettings,
+  BackgroundPosition,
+  TileType,
+  ToolbarRevealMode,
+} from "./types";
 
 const BACKGROUND_POSITIONS: BackgroundPosition[] = [
   "top",
@@ -13,6 +19,8 @@ const BACKGROUND_POSITIONS: BackgroundPosition[] = [
   "right",
   "bottom",
 ];
+
+const TOOLBAR_REVEAL_MODES: ToolbarRevealMode[] = ["hover", "keypress"];
 
 export function migrateSettings(value: unknown): AppSettings {
   if (!isRecord(value)) {
@@ -29,10 +37,21 @@ export function migrateSettings(value: unknown): AppSettings {
     backgroundPosition: coerceBackgroundPosition(value.backgroundPosition),
     gridRows: coerceGridRows(value.gridRows),
     tileSizeScale: coerceTileSizeScale(value.tileSizeScale),
+    toolbarRevealMode: coerceToolbarRevealMode(value.toolbarRevealMode),
+    toolbarRevealKey:
+      normalizeToolbarRevealKey(value.toolbarRevealKey) ??
+      DEFAULT_SETTINGS.toolbarRevealKey,
     tiles: Array.isArray(value.tiles)
       ? value.tiles.map(migrateTile).filter(isTile)
       : [],
   };
+}
+
+function coerceToolbarRevealMode(value: unknown): ToolbarRevealMode {
+  return typeof value === "string" &&
+    TOOLBAR_REVEAL_MODES.includes(value as ToolbarRevealMode)
+    ? (value as ToolbarRevealMode)
+    : DEFAULT_SETTINGS.toolbarRevealMode;
 }
 
 function coerceBackgroundPosition(value: unknown): BackgroundPosition {

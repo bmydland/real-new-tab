@@ -1,3 +1,4 @@
+import { Textfield } from "@digdir/designsystemet-react";
 import styled from "styled-components";
 
 export const SettingsStack = styled.div`
@@ -14,4 +15,13 @@ export const SettingsActions = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+`;
+
+export const ToolbarRevealOptions = styled.div`
+  display: grid;
+  gap: var(--space-2);
+`;
+
+export const ToolbarRevealKeyField = styled(Textfield)`
+  max-width: 20rem;
 `;

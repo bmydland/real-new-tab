@@ -17,7 +17,7 @@ export const HorizontalStack = styled.div`
     min-width: 0;
   }
 
-  @media (max-width: 560px) {
+  @media (max-width: 35rem) {
     flex-direction: column;
     align-items: stretch;
 
@@ -44,7 +44,7 @@ export const RadioGrid = styled.div`
     inset: 0;
   }
 
-  @media (max-width: 420px) {
+  @media (max-width: 26.25rem) {
     grid-template-columns: 1fr;
   }
 `;
@@ -58,11 +58,11 @@ export const FileActions = styled.div`
 
 export const IconColorControls = styled.div`
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(112px, 150px);
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, 9.375rem);
   align-items: end;
   gap: var(--space-4);
 
-  @media (max-width: 560px) {
+  @media (max-width: 35rem) {
     grid-template-columns: 1fr;
   }
 `;
@@ -74,8 +74,8 @@ export const DialogActions = styled.div`
 `;
 
 export const IconPreview = styled.img`
-  width: 38px;
-  height: 38px;
+  width: 2.375rem;
+  height: 2.375rem;
   border: var(--border-width) solid var(--ds-color-border-subtle);
   border-radius: var(--ds-border-radius-sm);
   object-fit: contain;
@@ -83,8 +83,8 @@ export const IconPreview = styled.img`
 `;
 
 export const IconPreviewFrame = styled.span`
-  width: 38px;
-  height: 38px;
+  width: 2.375rem;
+  height: 2.375rem;
   display: grid;
   place-items: center;
   border: var(--border-width) solid var(--ds-color-border-subtle);
@@ -96,8 +96,8 @@ export const MaskedIconPreview = styled.span<{
   $icon: string;
   $iconColor: string;
 }>`
-  width: 32px;
-  height: 32px;
+  width: 2rem;
+  height: 2rem;
   display: block;
   background-color: ${({ $iconColor }) => $iconColor};
   -webkit-mask: url(${({ $icon }) => $icon}) center / contain no-repeat;

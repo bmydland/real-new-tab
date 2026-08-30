@@ -5,6 +5,20 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
+## [0.1.13] - 30.08.2026
+
+### Added
+
+- Added a setting to reveal the toolbar on hover or with a configurable keypress.
+
+### Changed
+
+- Limited the toolbar hover target to the area around its buttons.
+
+### Fixed
+
+- Display settings notifications above the modal backdrop.
+
 ## [0.1.12] - 26.08.2026
 
 ### Changed

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback } from "react";
 import { useDrag, useDrop } from "react-dnd";
 import type { TileType } from "~/settings";
 import {
@@ -49,8 +49,6 @@ export function DraggableTile({
     iconSize: tileIconSize,
   } = tile;
 
-  const frameRef = useRef<HTMLElement>(null);
-
   const [{ isDragging }, drag] = useDrag(
     () => ({
       type: TILE_DND_TYPE,
@@ -90,12 +88,16 @@ export function DraggableTile({
     [index, isEditMode, onMove, tileId],
   );
 
-  drop(frameRef);
-  drag(frameRef);
+  const connectFrame = useCallback(
+    (element: HTMLElement | null) => {
+      drag(drop(element));
+    },
+    [drag, drop],
+  );
 
   return (
     <TileElement
-      ref={frameRef}
+      ref={connectFrame}
       $color={tileColor}
       $isDragging={isDragging}
       $isDropTarget={isDropTarget}

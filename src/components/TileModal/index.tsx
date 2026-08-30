@@ -10,7 +10,7 @@ import {
   Radio,
   Textfield,
 } from "@digdir/designsystemet-react";
-import { useEffect, useState, type ChangeEvent, type SubmitEvent } from "react";
+import { useState, type ChangeEvent, type SubmitEvent } from "react";
 import type { TileType } from "~/settings";
 import type { TileFormValue } from "~/types";
 import { getReadableTileTextColor } from "~/utils/color";
@@ -38,7 +38,6 @@ import {
 
 interface Props {
   tile?: TileType;
-  isTileModalOpen: boolean;
   onClose: () => void;
   onDelete: (id: string) => void;
   onSave: (form: TileFormValue) => Promise<void>;
@@ -46,50 +45,32 @@ interface Props {
 
 export function TileModal({
   tile,
-  isTileModalOpen,
   onClose,
   onDelete,
   onSave,
 }: Props) {
-  const [form, setForm] = useState<TileFormValue>(EMPTY_TILE_FORM);
+  const [form, setForm] = useState<TileFormValue>(() =>
+    tile
+      ? {
+          url: tile.url,
+          label: tile.label,
+          color: tile.color,
+          size: tile.size,
+          icon: tile.icon,
+          iconColor: isSvgImageDataUrl(tile.icon)
+            ? tile.iconColor
+            : undefined,
+          iconSize: tile.iconSize,
+        }
+      : EMPTY_TILE_FORM,
+  );
   const [formError, setFormError] = useState("");
   const [isMatchingIconColor, setIsMatchingIconColor] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Prefill edit modal with existing data
-  useEffect(() => {
-    if (!isTileModalOpen) {
-      return;
-    }
-
-    setForm(
-      tile
-        ? {
-            url: tile.url,
-            label: tile.label,
-            color: tile.color,
-            size: tile.size,
-            icon: tile.icon,
-            iconColor: isSvgImageDataUrl(tile.icon)
-              ? tile.iconColor
-              : undefined,
-            iconSize: tile.iconSize,
-          }
-        : EMPTY_TILE_FORM,
-    );
-    setFormError("");
-    setIsMatchingIconColor(false);
-  }, [isTileModalOpen, tile]);
-
-  if (!isTileModalOpen) {
-    return null;
-  }
-
   const isSvgIcon = isSvgImageDataUrl(form.icon);
 
   function closeHandler() {
-    setForm(EMPTY_TILE_FORM);
-
     onClose();
   }
 
@@ -173,11 +154,10 @@ export function TileModal({
 
   return (
     <Dialog
-      open={isTileModalOpen}
+      open
       placement="right"
       closedby="any"
       closeButton={false}
-      modal={false}
       onClose={closeHandler}
       style={{
         display: "flex",

@@ -22,7 +22,7 @@ export const TileGrid = styled.div<{ $rowCount: number }>`
   gap: var(--tile-gap);
   max-width: 100%;
 
-  @media (max-width: 720px) {
+  @media (max-width: 45rem) {
     width: 100%;
     grid-template-rows: none;
     grid-template-columns: repeat(auto-fit, minmax(var(--tile-size), 1fr));
@@ -31,7 +31,7 @@ export const TileGrid = styled.div<{ $rowCount: number }>`
     grid-auto-flow: row dense;
   }
 
-  @media (max-width: 360px) {
+  @media (max-width: 22.5rem) {
     display: flex;
     width: fit-content;
     flex-direction: column;
@@ -54,7 +54,7 @@ export const TileElement = styled.article<{
   grid-row: ${({ $size }) => ($size === "large" ? "span 2" : "span 1")};
   background-color: ${({ $color }) => $color};
   color: ${({ $color }) => getReadableTileTextColor($color)};
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 0.75rem 1.75rem rgba(0, 0, 0, 0.22);
   opacity: ${({ $isDragging }) => ($isDragging ? 0.44 : 1)};
   transition: opacity 120ms ease;
 
@@ -67,10 +67,10 @@ export const TileElement = styled.article<{
           }
         `
       : css`
-          outline-offset: -6px;
+          outline-offset: -0.375rem;
 
           &:hover {
-            outline: 6px solid rgba(255, 255, 255, 0.72);
+            outline: 0.375rem solid rgba(255, 255, 255, 0.72);
           }
         `}
 
@@ -80,15 +80,14 @@ export const TileElement = styled.article<{
       cursor: grab;
 
       &:hover {
-        outline: 6px solid rgba(255, 255, 255, 0.9);
+        outline: 0.375rem solid rgba(255, 255, 255, 0.9);
       }
 
       &:active {
         cursor: grabbing;
       }
     `}
-
-  @media (max-width: 360px) {
+  @media (max-width: 22.5rem) {
     flex: none;
     width: ${({ $size }) =>
       $size === "normal"
@@ -150,8 +149,8 @@ export const TileActionButtonWrapper = styled.div`
   padding: var(--space-3);
   inset: 0;
   z-index: 2;
-  gap: 6px;
-  filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.75));
+  gap: 0.375rem;
+  filter: drop-shadow(0 0 0.9375rem rgba(0, 0, 0, 0.75));
 `;
 
 export const TileActionButton = styled(Button)`
@@ -166,13 +165,13 @@ export const TileActionButton = styled(Button)`
 `;
 
 export const EmptyState = styled.button`
-  min-height: 48px;
+  min-height: 3rem;
   border: 0;
-  border-radius: 8px;
-  padding: 18px 22px;
+  border-radius: var(--ds-border-radius-lg);
+  padding: 1.125rem 1.375rem;
   color: var(--color-light);
   background: rgba(6, 12, 14, 0.62);
   font-weight: 700;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--backdrop-blur));
   cursor: pointer;
 `;

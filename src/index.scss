@@ -12,20 +12,23 @@
     interpolate-size: allow-keywords;
   }
 
-  --tile-base-size: clamp(7.5rem, 15vw, 8.75rem); // 120px - 140px
-  --tile-gap: 0.625rem; // 10px
-  --space-1: 0.25rem; // 4px
-  --space-2: 0.5rem; // 8px
-  --space-3: 0.75rem; // 12px
-  --space-4: 1rem; // 16px
-  --space-5: 1.5rem; // 24px
+  --tile-base-size: clamp(7.5rem, 15vw, 8.75rem);
+  --tile-gap: 0.625rem;
+  --space-1: var(--ds-size-1);
+  --space-2: var(--ds-size-2);
+  --space-3: var(--ds-size-3);
+  --space-4: var(--ds-size-4);
+  --space-5: var(--ds-size-6);
   --color-light: #ffffff;
   --color-dark: #171717;
-  --btn-size: 2.75rem; // 44px
-  --border-width: 0.0625rem; // 1px
+  --btn-size: var(--ds-size-11);
+  --border-width: var(--ds-border-width-default);
+  --backdrop-blur: 0.75rem;
+  --focus-ring-color: #7ed6d2;
+  --focus-ring-width: var(--ds-border-width-focus);
   font-family: "Roboto", sans-serif;
   background-color: #09100f;
-  font-size: 1rem; // 16px
+  font-size: 1rem;
   letter-spacing: 0;
 }
 
@@ -50,12 +53,12 @@ input {
 a:focus-visible,
 button:focus-visible,
 input:focus-visible {
-  outline: 3px solid #7ed6d2;
-  outline-offset: 3px;
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-width);
 }
 
-@media (max-width: 360px) {
+@media (max-width: 22.5rem) {
   :root {
-    --tile-base-size: 100px;
+    --tile-base-size: 6.25rem;
   }
 }

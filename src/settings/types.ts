@@ -1,5 +1,6 @@
 export type TileSize = "normal" | "wide" | "large";
 export type BackgroundPosition = "top" | "left" | "center" | "right" | "bottom";
+export type ToolbarRevealMode = "hover" | "keypress";
 
 export type TileType = {
   id: string;
@@ -21,6 +22,8 @@ export type AppSettings = {
   backgroundPosition: BackgroundPosition;
   gridRows: number;
   tileSizeScale: number;
+  toolbarRevealMode: ToolbarRevealMode;
+  toolbarRevealKey: string;
   tiles: TileType[];
 };
 

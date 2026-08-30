@@ -137,6 +137,8 @@ export default function App() {
         >
           <Toolbar
             isEditMode={isEditMode}
+            revealKey={settings.toolbarRevealKey}
+            revealMode={settings.toolbarRevealMode}
             toggleEditMode={toggleEditMode}
             onAddTile={() => setDialogState({ type: "add" })}
             onOpenSettings={onOpenSettings}
@@ -153,26 +155,33 @@ export default function App() {
             />
           </DndProvider>
 
-          <TileModal
-            tile={dialogState?.type === "edit" ? dialogState.tile : undefined}
-            isTileModalOpen={dialogState !== null}
-            onClose={() => setDialogState(null)}
-            onDelete={(id) => deleteTile(id)}
-            onSave={saveTile}
-          />
+          {dialogState !== null && (
+            <TileModal
+              key={
+                dialogState.type === "edit" ? dialogState.tile.id : "add-tile"
+              }
+              tile={
+                dialogState.type === "edit" ? dialogState.tile : undefined
+              }
+              onClose={() => setDialogState(null)}
+              onDelete={(id) => deleteTile(id)}
+              onSave={saveTile}
+            />
+          )}
 
-          <SettingsDialog
-            isSettingsOpen={isSettingsOpen}
-            settings={settings}
-            onClose={setSettingsClosed}
-            onPersist={persistSettings}
-            onTileSizeScalePreview={previewTileSizeScale}
-            onStatus={showToast}
-          />
+          {isSettingsOpen && (
+            <SettingsDialog
+              settings={settings}
+              onClose={setSettingsClosed}
+              onPersist={persistSettings}
+              onTileSizeScalePreview={previewTileSizeScale}
+              onStatus={showToast}
+            />
+          )}
         </StyledMain>
       )}
 
-      <Toaster position="bottom-left" />
+      {!isSettingsOpen && <Toaster position="bottom-left" />}
     </>
   );
 }

@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
+import { Toaster } from "react-hot-toast";
 import {
   FileExportIcon,
   FileImportIcon,
@@ -11,15 +18,20 @@ import {
   DialogBlock,
   Divider,
   Field,
+  Fieldset,
   Heading,
   Label,
+  Radio,
   Select,
 } from "@digdir/designsystemet-react";
 import {
   createSettingsExport,
+  formatToolbarRevealKey,
+  normalizeToolbarRevealKey,
   parseSettingsImport,
   type AppSettings,
   type BackgroundPosition,
+  type ToolbarRevealMode,
 } from "~/settings";
 import type { ToastKind } from "~/utils/toast";
 import { readFileAsDataUrl } from "~/utils/file/readFileAsDataUrl";
@@ -29,13 +41,22 @@ import { RangeField } from "~/components/RangeField";
 import { SrOnly } from "~/components/SrOnly";
 import { TILE_SIZE_SCALE_RANGE } from "~/settings/constants";
 import { formatBackupTimestamp } from "./utils";
-import { BACKGROUND_POSITION_OPTIONS, GRID_ROW_OPTIONS } from "./settings";
-import { SettingsActions, SettingsSection, SettingsStack } from "./styles";
+import {
+  BACKGROUND_POSITION_OPTIONS,
+  GRID_ROW_OPTIONS,
+  TOOLBAR_REVEAL_OPTIONS,
+} from "./settings";
+import {
+  SettingsActions,
+  SettingsSection,
+  SettingsStack,
+  ToolbarRevealKeyField,
+  ToolbarRevealOptions,
+} from "./styles";
 
 const TILE_SIZE_SAVE_DELAY_MS = 300;
 
 interface Props {
-  isSettingsOpen: boolean;
   settings: AppSettings;
   onClose: () => void;
   onPersist: (settings: AppSettings, message?: string) => Promise<void>;
@@ -44,7 +65,6 @@ interface Props {
 }
 
 export function SettingsModal({
-  isSettingsOpen,
   settings,
   onClose,
   onPersist,
@@ -60,10 +80,6 @@ export function SettingsModal({
     latestSettingsRef.current = settings;
   }, [settings]);
 
-  useEffect(() => {
-    setTileSizeScale(settings.tileSizeScale);
-  }, [settings.tileSizeScale]);
-
   useEffect(
     () => () => {
       if (tileSizeSaveTimerRef.current !== undefined) {
@@ -72,10 +88,6 @@ export function SettingsModal({
     },
     [],
   );
-
-  if (!isSettingsOpen) {
-    return null;
-  }
 
   function clearTileSizeSaveTimer() {
     if (tileSizeSaveTimerRef.current !== undefined) {
@@ -153,6 +165,35 @@ export function SettingsModal({
     await onPersist({ ...settings, gridRows }, "Grid layout saved.");
   }
 
+  async function changeToolbarRevealMode(toolbarRevealMode: ToolbarRevealMode) {
+    await onPersist(
+      { ...settings, toolbarRevealMode },
+      "Toolbar reveal setting saved.",
+    );
+  }
+
+  async function captureToolbarRevealKey(
+    event: KeyboardEvent<HTMLInputElement>,
+  ) {
+    if (event.altKey || event.ctrlKey || event.metaKey) {
+      return;
+    }
+
+    const toolbarRevealKey = normalizeToolbarRevealKey(event.key);
+
+    if (!toolbarRevealKey) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    await onPersist(
+      { ...settings, toolbarRevealKey },
+      `Toolbar reveal key set to ${formatToolbarRevealKey(toolbarRevealKey)}.`,
+    );
+  }
+
   function changeTileSizeScale(event: ChangeEvent<HTMLInputElement>) {
     const tileSizeScale = event.currentTarget.valueAsNumber;
 
@@ -221,7 +262,7 @@ export function SettingsModal({
 
   return (
     <Dialog
-      open={isSettingsOpen}
+      open
       placement="right"
       closedby="any"
       closeButton={false}
@@ -282,6 +323,46 @@ export function SettingsModal({
 
           <SettingsSection>
             <Heading level={2} data-size="xs">
+              Toolbar
+            </Heading>
+
+            <Fieldset>
+              <Fieldset.Legend>Reveal toolbar</Fieldset.Legend>
+              <Fieldset.Description>
+                Choose how the hidden toolbar becomes visible.
+              </Fieldset.Description>
+
+              <ToolbarRevealOptions>
+                {TOOLBAR_REVEAL_OPTIONS.map((option) => (
+                  <Radio
+                    key={option.value}
+                    label={option.label}
+                    description={option.description}
+                    name="toolbar-reveal-mode"
+                    value={option.value}
+                    checked={settings.toolbarRevealMode === option.value}
+                    onChange={() => void changeToolbarRevealMode(option.value)}
+                  />
+                ))}
+              </ToolbarRevealOptions>
+            </Fieldset>
+
+            {settings.toolbarRevealMode === "keypress" && (
+              <ToolbarRevealKeyField
+                label="Reveal key"
+                description="Focus this field, then press the key you want to use."
+                value={formatToolbarRevealKey(settings.toolbarRevealKey)}
+                readOnly
+                spellCheck={false}
+                onKeyDown={(event) => void captureToolbarRevealKey(event)}
+              />
+            )}
+          </SettingsSection>
+
+          <Divider />
+
+          <SettingsSection>
+            <Heading level={2} data-size="xs">
               Background image
             </Heading>
 
@@ -308,7 +389,7 @@ export function SettingsModal({
               </Button>
             </SettingsActions>
 
-            <Field style={{ marginTop: 10 }}>
+            <Field style={{ marginTop: "var(--tile-gap)" }}>
               <Label htmlFor="background-position">Background position</Label>
 
               <Select
@@ -360,6 +441,8 @@ export function SettingsModal({
           </SettingsSection>
         </SettingsStack>
       </DialogBlock>
+
+      <Toaster position="bottom-left" />
     </Dialog>
   );
 }

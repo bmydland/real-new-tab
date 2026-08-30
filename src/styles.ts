@@ -12,7 +12,7 @@ export const StyledMain = styled.main<{
   );
 
   min-height: 100dvh;
-  padding-block: 15px;
+  padding-block: 0.9375rem;
   padding-inline: var(--tile-gap);
   width: 100%;
   display: flex;
@@ -28,7 +28,7 @@ export const StyledMain = styled.main<{
   background-size: cover;
   box-sizing: border-box;
 
-  @media (max-width: 720px) {
-    gap: 20px;
+  @media (max-width: 45rem) {
+    gap: 1.25rem;
   }
 `;

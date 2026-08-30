@@ -1,34 +1,46 @@
 import { Button } from "@digdir/designsystemet-react";
 import styled, { css } from "styled-components";
+import type { ToolbarRevealMode } from "~/settings";
 
-export const StyledHeader = styled.header<{ $isEditMode: boolean }>`
+export const StyledHeader = styled.header<{
+  $isVisible: boolean;
+  $revealMode: ToolbarRevealMode;
+}>`
   position: absolute;
   top: 0;
   padding: var(--tile-gap);
-  width: 100%;
   z-index: 10;
   display: flex;
-  justify-content: end;
-  gap: 4px;
-  opacity: ${({ $isEditMode }) => ($isEditMode ? 1 : 0)};
-  transition: opacity 0.5s ease;
-  transition-delay: 0.5s;
+  justify-content: center;
+  align-self: end;
+  gap: var(--space-1);
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  pointer-events: ${({ $isVisible, $revealMode }) =>
+    $revealMode === "keypress" && !$isVisible ? "none" : "auto"};
 
-  &:hover {
-    opacity: 1;
-    transition-delay: 0s;
-  }
+  ${({ $revealMode }) =>
+    $revealMode === "hover" &&
+    css`
+      transition: opacity 0.5s ease;
+      transition-delay: 0.5s;
 
-  @media (max-width: 700px) {
+      &:hover,
+      &:focus-within {
+        opacity: 1;
+        transition-delay: 0s;
+      }
+    `}
+
+  @media (max-width: 43.75rem) {
     position: sticky;
     padding: 0;
   }
 
-  @media (max-width: 500px) {
+  @media (max-width: 31.25rem) {
     flex-wrap: wrap;
     inset: 0;
     width: 100%;
-    padding-inline: 10px;
+    padding-inline: var(--tile-gap);
 
     > button {
       flex: 1;
@@ -43,11 +55,11 @@ export const ToolbarButton = styled(Button)<{
   $isEditMode?: boolean;
   $preserveVariant?: boolean;
 }>`
-  border-radius: 100px;
+  border-radius: var(--ds-border-radius-full);
   transition: all 0.2s ease;
   font-weight: 600;
   font-size: 0.82rem;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--backdrop-blur));
 
   ${({ $isEditMode, $preserveVariant }) =>
     !$preserveVariant
@@ -55,7 +67,7 @@ export const ToolbarButton = styled(Button)<{
           background-color: ${$isEditMode
             ? "color-mix(in srgb, var(--color-light) 90%, transparent)"
             : "rgba(10, 15, 15, 0.6)"};
-          border: 1px solid rgba(255, 255, 255, 0.22);
+          border: var(--border-width) solid rgba(255, 255, 255, 0.22);
           color: ${$isEditMode ? "var(--color-dark)" : "var(--color-light)"};
 
           &:hover,
@@ -66,7 +78,7 @@ export const ToolbarButton = styled(Button)<{
           }
         `
       : css`
-          filter: drop-shadow(0 0 15px rgba(0, 0, 0, 0.4));
+          filter: drop-shadow(0 0 0.9375rem rgba(0, 0, 0, 0.4));
         `}
 
   ${({ icon }) =>
