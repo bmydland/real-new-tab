@@ -11,6 +11,10 @@ and this project uses semantic versioning.
 
 - Replace newly created Chrome new-tab pages with realNewTab when the new-tab URL is exposed before an organization-managed redirect, using a background worker and the tabs permission.
 
+### Fixed
+
+- Update the existing new tab in place instead of opening a replacement tab and closing the original.
+
 ### Notes
 
 - Disable other new-tab redirect extensions before testing. This timing-dependent workaround still needs validation on the managed work PC.
