@@ -5,6 +5,16 @@ All notable changes to realNewTab will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project uses semantic versioning.
 
+## [0.1.14] - 2026-09-26
+
+### Added
+
+- Replace newly created Chrome new-tab pages with realNewTab when the new-tab URL is exposed before an organization-managed redirect, using a background worker and the tabs permission.
+
+### Notes
+
+- Disable other new-tab redirect extensions before testing. This timing-dependent workaround still needs validation on the managed work PC.
+
 ## [0.1.13] - 30.08.2026
 
 ### Added
@@ -117,6 +127,8 @@ and this project uses semantic versioning.
 
 - Added automated GitHub release packaging and installation documentation.
 
+[0.1.14]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.14
+[0.1.13]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.13
 [0.1.12]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.12
 [0.1.11]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.11
 [0.1.10]: https://github.com/bmydland/real-new-tab/releases/tag/v0.1.10

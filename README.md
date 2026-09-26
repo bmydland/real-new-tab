@@ -17,6 +17,16 @@ Chrome cannot load the ZIP file directly. Keep the extracted folder after loadin
 
 See [CHANGELOG.md](CHANGELOG.md) for the release history.
 
+## Organization-managed New Tab pages
+
+The background service worker watches newly created tabs whose `pendingUrl` is exactly `chrome://newtab/`. It opens this extension's `index.html` directly in the same window and position, preserving active and pinned state, then closes the original only after creation succeeds. Other URLs are ignored. The normal `chrome_url_overrides` entry remains in place.
+
+The additional `tabs` permission is needed to read `pendingUrl`; no host permissions, content scripts, or policy changes are used. Existing storage permissions and saved settings are unchanged. Vite copies `public/background.js` into `dist/` automatically, including in release archives.
+
+Disable **Override Chrome's New Tab Policy** before testing this build to avoid two extensions replacing the same tab. Build, then reload the existing realNewTab entry at `chrome://extensions` if it points to this repository's `dist/` folder. Approve the added permission if Chrome requests it. If your installed entry points elsewhere, update that folder's build files and reload the same entry to retain its extension identity and settings.
+
+Check Ctrl+T, the + button, a new window, and normal links opened in background tabs. Confirm tiles/settings still work and there are no duplicate tabs. This is a timing-dependent workaround: it only runs when Chrome exposes `chrome://newtab/` in `pendingUrl` at creation. A managed URL opened directly or supplied before this event will not match. The replacement gets a new tab ID, and Chrome controls address-bar focus; this is not a guarantee against every enterprise configuration.
+
 ## Development
 
 Install dependencies:
