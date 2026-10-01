@@ -20,7 +20,7 @@
     "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^19.2.8",
     "react-hot-toast": "^2.6.0",
-    "styled-components": "^6.4.3"
+    "styled-components": "^6.5.3"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
